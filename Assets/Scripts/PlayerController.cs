@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour {
 	private const float STEER_ANG_ACC = 3.5f;
 	private const float STEER_ANG_DECC = 9f;
 
-	private const float STEERING_SCALE_DOWN_SPEED = 0.6f * MAX_SPEED;
+	private const float STEERING_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
 	private float m_ThrustInput;
 	private float m_FwdInput;
