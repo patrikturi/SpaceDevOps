@@ -4,20 +4,22 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	private string m_ThrustAxis = "Thrust";
-	private string m_FwdAxis = "Vertical";
-	private string m_OrthoAxis = "Horizontal";
+	private string THRUST_AXIS = "Thrust";
+	private string FWD_AXIS = "Vertical";
+	private string ORTHO_AXIS = "Horizontal";
 
-	private float m_MaxSpeed = 25;
-	private float m_FwdAcc = 0.75f;
+	private const float MAX_SPEED = 25;
+	private const float FWD_ACC = 0.75f;
 
-	private float m_MaxRotAngSpeed = 2.5f;
-	private float m_RotAngAcc = 4.5f;
-	private float m_RotAngDecc = 9f;
+	private const float MAX_ROT_ANG_SPEED = 2.5f;
+	private const float ROT_ANG_ACC = 4.5f;
+	private const float ROT_ANG_DECC = 9f;
 
-	private float m_MaxSteerAngSpeed = 1.75f;
-	private float m_SteerAngAcc = 3.5f;
-	private float m_SteerAngDecc = 9f;
+	private const float MAX_STEER_ANG_SPEED = 1.75f;
+	private const float STEER_ANG_ACC = 3.5f;
+	private const float STEER_ANG_DECC = 9f;
+
+	private const float STEERING_SCALE_DOWN_SPEED = 0.6f * MAX_SPEED;
 
 	private float m_ThrustInput;
 	private float m_FwdInput;
@@ -25,26 +27,16 @@ public class PlayerController : MonoBehaviour {
 
 	private Rigidbody m_Body;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-
 	void Awake() {
 		m_Body = GetComponent<Rigidbody> ();
 		m_Body.inertiaTensorRotation = Quaternion.identity;
 	}
 
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
 	void FixedUpdate()
 	{
-		m_ThrustInput = Input.GetAxis (m_ThrustAxis);
-		m_FwdInput = Input.GetAxis (m_FwdAxis);
-		m_OrthoInput = Input.GetAxis (m_OrthoAxis);
+		m_ThrustInput = Input.GetAxis (THRUST_AXIS);
+		m_FwdInput = Input.GetAxis (FWD_AXIS);
+		m_OrthoInput = Input.GetAxis (ORTHO_AXIS);
 
 		ApplyFwdForce ();
 		ApplyRotation ();
@@ -56,7 +48,7 @@ public class PlayerController : MonoBehaviour {
 	{
 		float targetSpeed;
 		if (Mathf.Abs (m_ThrustInput) > 0.1f) {
-			targetSpeed = Mathf.Sign (m_ThrustInput) * m_MaxSpeed;
+			targetSpeed = Mathf.Sign (m_ThrustInput) * MAX_SPEED;
 		} else {
 			targetSpeed = 0f;
 		}
@@ -67,7 +59,7 @@ public class PlayerController : MonoBehaviour {
 		float fwdSpeedDiff = targetSpeed - fwdSpeed;
 
 		// F = m * a
-		Vector3 fwdForce = m_Body.mass * fwdSpeedDiff * m_FwdAcc * fwd;
+		Vector3 fwdForce = m_Body.mass * fwdSpeedDiff * FWD_ACC * fwd;
 		m_Body.AddForce(fwdForce);
 	}
 
@@ -76,11 +68,11 @@ public class PlayerController : MonoBehaviour {
 		float targetAngSpeed;
 		float angAcc;
 		if (Mathf.Abs (m_OrthoInput) > 0.1f) {
-			targetAngSpeed = -Mathf.Sign (m_OrthoInput) * m_MaxRotAngSpeed;
-			angAcc = m_RotAngAcc;
+			targetAngSpeed = -Mathf.Sign (m_OrthoInput) * MAX_ROT_ANG_SPEED;
+			angAcc = ROT_ANG_ACC;
 		} else {
 			targetAngSpeed = 0f;
-			angAcc = m_RotAngDecc;
+			angAcc = ROT_ANG_DECC;
 		}
 
 		Vector3 fwd = m_Body.transform.forward;
@@ -97,12 +89,17 @@ public class PlayerController : MonoBehaviour {
 	{
 		float targetAngSpeed;
 		float angAcc;
+
+		float shipFwdSpeed = Vector3.Dot(m_Body.transform.forward, m_Body.velocity);
 		if (Mathf.Abs (m_FwdInput) > 0.1f) {
-			targetAngSpeed = Mathf.Sign (m_FwdInput) * m_MaxSteerAngSpeed;
-			angAcc = m_SteerAngAcc;
+			targetAngSpeed = Mathf.Sign (m_FwdInput) * MAX_STEER_ANG_SPEED;
+			// Make steering slower at a slow linear velocity
+			float scaleDownRatio = Mathf.Min (shipFwdSpeed / STEERING_SCALE_DOWN_SPEED, 1f);
+			targetAngSpeed *= scaleDownRatio;
+			angAcc = STEER_ANG_ACC;
 		} else {
 			targetAngSpeed = 0f;
-			angAcc = m_SteerAngDecc;
+			angAcc = STEER_ANG_DECC;
 		}
 
 		Vector3 right = m_Body.transform.right;
@@ -111,6 +108,7 @@ public class PlayerController : MonoBehaviour {
 
 		// T = I alpha
 		float torqueMag = m_Body.inertiaTensor.x * fwdAngSpeedDiff * angAcc;
+		
 		Vector3 relTorque = new Vector3(torqueMag, 0, 0);
 		m_Body.AddRelativeTorque (relTorque);
 	}
@@ -118,7 +116,6 @@ public class PlayerController : MonoBehaviour {
 	void ApplySteeringForce ()
 	{
 		// Keep Y velocity zero
-
 		Vector3 up = m_Body.transform.up;
 		float upSpeed = Vector3.Dot (up, m_Body.velocity);
 

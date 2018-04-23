@@ -7,7 +7,7 @@ public class CameraController : MonoBehaviour {
 	public Transform m_Target;
 
 	private Vector3 POS_OFFSET = new Vector3(0, 5.5f, -10f);
-	private float POS_SMOOTHING_DURATION = 0.4f;
+	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private float UP_SMOOTHING_STEP;
 
 	private Vector3 m_CameraUp;
