@@ -1,0 +1,4 @@
+Skybox texture exported from the Spacescape tool.
+http://alexcpeterson.com/spacescape/
+
+Spacescape has MIT license, see https://github.com/svenstaro/Spacescape
