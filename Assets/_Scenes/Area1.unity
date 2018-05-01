@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 059d5d9814b89ab4f861ffebe7e0fefe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Target: {fileID: 2116578130}
+  m_Target: {fileID: 2116578125}
 --- !u!1001 &842616050
 Prefab:
   m_ObjectHideFlags: 0
@@ -623,10 +623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16b654e11c4070c45853f75ce5cbe3f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &2116578130 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400000, guid: 0b8980b0595eae441acaa1276188104a, type: 3}
-  m_PrefabInternal: {fileID: 1938612263}
 --- !u!65 &2116578131
 BoxCollider:
   m_ObjectHideFlags: 0
