@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+	public DebugUI m_DebugUI;
+
 	private string THRUST_AXIS = "Thrust";
+	private string BRAKE_AXIS = "Brake";
 	private string FWD_AXIS = "Vertical";
 	private string ORTHO_AXIS = "Horizontal";
 
@@ -21,7 +24,13 @@ public class PlayerController : MonoBehaviour {
 
 	private const float STEERING_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
+	private const float FWD_DAMPING_RATIO = 0.001f;
+	private const float FWD_MIN_DAMPING = 0.1f;
+
+	private const string SPEED_UI_KEY = "Speed";
+
 	private float m_ThrustInput;
+	private float m_BrakeInput;
 	private float m_FwdInput;
 	private float m_OrthoInput;
 
@@ -32,9 +41,14 @@ public class PlayerController : MonoBehaviour {
 		m_Body.inertiaTensorRotation = Quaternion.identity;
 	}
 
+	void Start() {
+		m_DebugUI.RegisterVar (SPEED_UI_KEY);
+	}
+
 	void FixedUpdate()
 	{
 		m_ThrustInput = Input.GetAxis (THRUST_AXIS);
+		m_BrakeInput = Input.GetAxis (BRAKE_AXIS);
 		m_FwdInput = Input.GetAxis (FWD_AXIS);
 		m_OrthoInput = Input.GetAxis (ORTHO_AXIS);
 
@@ -47,20 +61,34 @@ public class PlayerController : MonoBehaviour {
 	void ApplyFwdForce()
 	{
 		float targetSpeed;
-		if (Mathf.Abs (m_ThrustInput) > 0.1f) {
+		if (m_BrakeInput > 0.1f) {
+			targetSpeed = 0f;
+		} else if (Mathf.Abs (m_ThrustInput) > 0.1f) {
 			targetSpeed = Mathf.Sign (m_ThrustInput) * MAX_SPEED;
 		} else {
-			targetSpeed = 0f;
+			targetSpeed = -1f;
 		}
 
 		Vector3 fwd = m_Body.transform.forward;
 		Vector3 vel = m_Body.velocity;
 		float fwdSpeed = Vector3.Dot (fwd, vel);
-		float fwdSpeedDiff = targetSpeed - fwdSpeed;
+		m_DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString("0.0"));
 
-		// F = m * a
-		Vector3 fwdForce = m_Body.mass * fwdSpeedDiff * FWD_ACC * fwd;
-		m_Body.AddForce(fwdForce);
+		if (targetSpeed >= 0f) {
+			float fwdSpeedDiff = targetSpeed - fwdSpeed;
+
+			// F = m * a
+			Vector3 fwdForce = m_Body.mass * fwdSpeedDiff * FWD_ACC * fwd;
+			m_Body.AddForce (fwdForce);
+		} else {
+			// Apply damping
+			// F = m * a = m * dv/dt
+			float fwdSpeedAbs = Mathf.Abs(fwdSpeed);
+			float dv = Mathf.Max(fwdSpeedAbs * FWD_DAMPING_RATIO, FWD_MIN_DAMPING);
+			dv = Mathf.Min (dv, fwdSpeedAbs);
+			Vector3 fwdForce = m_Body.mass * -Mathf.Sign(fwdSpeed) * dv * fwd;
+			m_Body.AddForce (fwdForce);
+		}
 	}
 
 	void ApplyRotation()
