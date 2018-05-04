@@ -10,7 +10,14 @@ public class DebugUI : MonoBehaviour {
 
 	private Dictionary<string, Text> values = new Dictionary<string, Text>();
 
-	public void RegisterVar(string name) {
+	public void UpdateVar(string name, string value) {
+		if (!values.ContainsKey (name)) {
+			CreateNewText (name);
+		}
+		values [name].text = value;
+	}
+
+	private void CreateNewText(string name) {
 		GameObject nameObject = (GameObject)Instantiate (m_NamePrefab);
 		Text nameText = nameObject.GetComponent<Text> ();
 		nameText.text = name;
@@ -22,9 +29,5 @@ public class DebugUI : MonoBehaviour {
 		valueText.transform.SetParent (transform);
 
 		values.Add (name, valueText);
-	}
-
-	public void UpdateVar(string name, string value) {
-		values [name].text = value;
 	}
 }
