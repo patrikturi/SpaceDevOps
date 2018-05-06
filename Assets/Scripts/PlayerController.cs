@@ -27,7 +27,18 @@ public class PlayerController : MonoBehaviour {
 	private const float STEER_ANG_DECC_RATIO = 9f;
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
+	private float STEER_FORCE_DIFF_MULT;
+
+	private const float GRAVITY_RADIUS = 50.0f;
+	private float DRAG_COEFF;
+	private float GRAVITY_ACC = 7.5f;
+
 	private const string SPEED_UI_KEY = "Speed";
+
+	// Related to gravity
+	private const float SCAN_INTERVAL = 0.2f;
+	private int SCAN_FRAME_SKIP;
+	private int scan_cur_frame = 0;
 
 	private float m_ThrustInput;
 	private float m_BrakeInput;
@@ -36,12 +47,21 @@ public class PlayerController : MonoBehaviour {
 
 	private Rigidbody m_Body;
 
-	private PController m_FwdMotor = new PController(FWD_ACC_RATIO);
-	private PController m_FwdDamping = new PController(FWD_DAMPING_RATIO).setMinOutput(MIN_FWD_DAMPING);
+	private PController m_FwdMotor;
+	private PController m_FwdDamping;
+	private PController m_SteeringMotor;
 
 	void Awake() {
 		m_Body = GetComponent<Rigidbody> ();
 		m_Body.inertiaTensorRotation = Quaternion.identity;
+		DRAG_COEFF = m_Body.mass * 0.5f;
+		STEER_FORCE_DIFF_MULT = 20f * m_Body.mass;
+		SCAN_FRAME_SKIP = (int)Mathf.Round(SCAN_INTERVAL / Time.fixedDeltaTime);
+
+		m_FwdMotor = new PController (FWD_ACC_RATIO);
+		m_FwdDamping = new PController (FWD_DAMPING_RATIO);
+		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
+		m_SteeringMotor = new PController (DRAG_COEFF);
 	}
 
 	void FixedUpdate()
@@ -53,10 +73,18 @@ public class PlayerController : MonoBehaviour {
 
 		ApplyFwdForce ();
 		ApplyOrthoForce ();
+		ApplySteeringForce ();
+
+		scan_cur_frame++;
+		if (scan_cur_frame >= SCAN_FRAME_SKIP) {
+			UpdateGravityObjects();
+			scan_cur_frame = 0;
+		}
+		ApplyGravity ();
+
 		ApplyRotation ();
 		ApplySteering ();
 		ApplyYRotation ();
-		ApplySteeringForce ();
 	}
 
 	void ApplyFwdForce()
@@ -81,7 +109,8 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		float fwdSpeedDiff = targetSpeed - fwdSpeed;
-		float fwdAcc = controller.setMaxOutput(fwdSpeedDiff/Time.fixedDeltaTime).getOutput(fwdSpeed, targetSpeed);
+		controller.setMaxOutput (fwdSpeedDiff / Time.fixedDeltaTime);
+		float fwdAcc = controller.getOutput(fwdSpeed, targetSpeed);
 		// F = m * a
 		Vector3 fwdForce = m_Body.mass * fwdAcc * fwd;
 		m_Body.AddForce (fwdForce);
@@ -109,8 +138,8 @@ public class PlayerController : MonoBehaviour {
 
 		// a = dv/dt
 		float orthoAcc = -orthoSpeed / Time.fixedDeltaTime;
-		Vector3 fwdForce = m_Body.mass * orthoAcc * right;
-		m_Body.AddForce (fwdForce);
+		Vector3 orthoForce = m_Body.mass * orthoAcc * right;
+		m_Body.AddForce (orthoForce);
 	}
 
 	void ApplyRotation()
@@ -157,10 +186,10 @@ public class PlayerController : MonoBehaviour {
 		}
 
 		Vector3 right = m_Body.transform.right;
-		float fwdAngSpeed = Vector3.Dot (right, m_Body.angularVelocity);
+		float xAngSpeed = Vector3.Dot (right, m_Body.angularVelocity);
 
-		float fwdAngSpeedDiff = targetAngSpeed - fwdAngSpeed;
-		float angAcc = fwdAngSpeedDiff * angAccRatio;
+		float xAngSpeedDiff = targetAngSpeed - xAngSpeed;
+		float angAcc = xAngSpeedDiff * angAccRatio;
 		float torqueMag = m_Body.inertiaTensor.x * angAcc;
 		Vector3 relTorque = new Vector3(torqueMag, 0, 0);
 		m_Body.AddRelativeTorque (relTorque);
@@ -183,64 +212,51 @@ public class PlayerController : MonoBehaviour {
 		Vector3 up = m_Body.transform.up;
 		float upSpeed = Vector3.Dot (up, m_Body.velocity);
 
-		// F = m * a = m * dv/dt
-		float acc = -upSpeed/Time.fixedDeltaTime;
-		Vector3 force = m_Body.mass * acc * up;
-		m_Body.AddForce (force);
-	}
-}
+		m_DebugUI.UpdateVar ("UpSpeed", upSpeed.ToString ("0.0"));
 
-class PController
-{
-	private float gain;
-	private float min;
-	private float max;
-	private bool hasMin = false;
-	private bool hasMax = false;
+		// F = m * dv/dt
+		float maxForceMag = m_Body.mass * Mathf.Abs(upSpeed)/Time.fixedDeltaTime;
 
-	public PController(float gain) {
-		this.gain = gain;
-	}
+		Vector3 right = m_Body.transform.right;
+		float xAngSpeed = Vector3.Dot (right, m_Body.angularVelocity);
 
-	public PController setGain(float gain) {
-		this.gain = gain;
-		return this;
+		float dragForceMag = Mathf.Abs (upSpeed) * DRAG_COEFF;
+		float diffForceMag = Mathf.Abs(STEER_FORCE_DIFF_MULT * xAngSpeed);
+
+		float steeringForceMag = dragForceMag + diffForceMag;
+
+		steeringForceMag = Mathf.Min (steeringForceMag, maxForceMag);
+		Vector3 dragForce = -Mathf.Sign(upSpeed) * steeringForceMag * up;
+		m_Body.AddForce (dragForce);
 	}
 
-	public PController setMinOutput(float value) {
-		min = Mathf.Abs(value);
-		hasMin = true;
-		return this;
-	}
+	private List<GameObject> gravityObjects = new List<GameObject> ();
 
-	public PController clearMinOutput() {
-		hasMin = false;
-		return this;
-	}
+	void UpdateGravityObjects() {
+		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
 
-	public PController setMaxOutput(float value) {
-		max = Mathf.Abs(value);
-		hasMax = true;
-		return this;
-	}
-
-	public PController clearMaxOutput() {
-		hasMax = false;
-		return this;
-	}
-
-	public float getOutput(float current, float target) {
-		float outValue = (target - current) * gain;
-		if (hasMin) {
-			if (outValue < 0f) {
-				outValue = Mathf.Min (outValue, -min);
-			} else {
-				outValue = Mathf.Max (outValue, min);
+		gravityObjects.Clear ();
+		// TODO: filter duplicates
+		foreach (Collider collider in hitColliders) {
+			GameObject obj = collider.gameObject;
+			if (obj.tag.Contains ("GRAVITY")) {
+				gravityObjects.Add (obj);
 			}
 		}
-		if (hasMax) {
-			outValue = Mathf.Clamp (outValue, -max, max);
+		m_DebugUI.UpdateVar ("Grav", gravityObjects.Count.ToString());
+	}
+
+	void ApplyGravity() {
+		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
+
+		// TODO: filter duplicates eg. GameObject with two colliders
+		foreach(GameObject obj in gravityObjects) {
+			Vector3 toObj = obj.transform.position - m_Body.transform.position;
+
+			float forceMag = m_Body.mass * GRAVITY_ACC;
+			toObj.Normalize ();
+			Vector3 force = forceMag * toObj;
+			m_Body.AddForce (force);
 		}
-		return outValue;
 	}
 }

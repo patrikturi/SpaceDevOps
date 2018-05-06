@@ -22,12 +22,18 @@ public class DebugUI : MonoBehaviour {
 		Text nameText = nameObject.GetComponent<Text> ();
 		nameText.text = name;
 		nameText.transform.SetParent (transform);
+		nameText.transform.SetSiblingIndex (0); // Add to the end of the layout
 
 		GameObject valueObject = (GameObject)Instantiate (m_NamePrefab);
 		Text valueText = valueObject.GetComponent<Text> ();
 		valueText.text = "";
 		valueText.transform.SetParent (transform);
+		valueText.transform.SetSiblingIndex (1);
 
 		values.Add (name, valueText);
+	}
+
+	public Text getText(string name) {
+		return values [name];
 	}
 }
