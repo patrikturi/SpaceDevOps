@@ -20,12 +20,12 @@ public class PlayerController : MonoBehaviour {
 	private const float MAX_ROT_ANG_SPEED = 2.5f;
 	private const float ROT_ANG_ACC_RATIO = 4.5f;
 	private const float ROT_ANG_DECC_RATIO = 9f;
+	private const float ROT_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
 	private const float MAX_STEER_ANG_SPEED = 1.75f;
 	private const float STEER_ANG_ACC_RATIO = 3.5f;
 	private const float STEER_ANG_DECC_RATIO = 9f;
-
-	private const float STEERING_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
+	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
 	private const string SPEED_UI_KEY = "Speed";
 
@@ -117,8 +117,12 @@ public class PlayerController : MonoBehaviour {
 	{
 		float targetAngSpeed;
 		float angAccRatio;
+		float shipFwdSpeed = Vector3.Dot(m_Body.transform.forward, m_Body.velocity);
 		if (Mathf.Abs (m_OrthoInput) > 0.1f) {
 			targetAngSpeed = -Mathf.Sign (m_OrthoInput) * MAX_ROT_ANG_SPEED;
+			// Make rotation slower at a slow linear velocity
+			float scaleDownRatio = Mathf.Min (shipFwdSpeed / ROT_SCALE_DOWN_SPEED, 1f);
+			targetAngSpeed *= scaleDownRatio;
 			angAccRatio = ROT_ANG_ACC_RATIO;
 		} else {
 			targetAngSpeed = 0f;
@@ -144,7 +148,7 @@ public class PlayerController : MonoBehaviour {
 		if (Mathf.Abs (m_FwdInput) > 0.1f) {
 			targetAngSpeed = Mathf.Sign (m_FwdInput) * MAX_STEER_ANG_SPEED;
 			// Make steering slower at a slow linear velocity
-			float scaleDownRatio = Mathf.Min (shipFwdSpeed / STEERING_SCALE_DOWN_SPEED, 1f);
+			float scaleDownRatio = Mathf.Min (shipFwdSpeed / STEER_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
 			angAccRatio = STEER_ANG_ACC_RATIO;
 		} else {
