@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 222515730992397220}
   - component: {fileID: 114973602878404882}
   m_Layer: 5
-  m_Name: DebugNameText
+  m_Name: HelpText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 20
+    m_FontSize: 22
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -60,7 +60,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Hello there!
+  m_Text: Test help text
 --- !u!222 &222515730992397220
 CanvasRenderer:
   m_ObjectHideFlags: 1

@@ -49,7 +49,6 @@ public class PlayerController : MonoBehaviour {
 
 	private PController m_FwdMotor;
 	private PController m_FwdDamping;
-	private PController m_SteeringMotor;
 
 	void Awake() {
 		m_Body = GetComponent<Rigidbody> ();
@@ -61,7 +60,6 @@ public class PlayerController : MonoBehaviour {
 		m_FwdMotor = new PController (FWD_ACC_RATIO);
 		m_FwdDamping = new PController (FWD_DAMPING_RATIO);
 		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
-		m_SteeringMotor = new PController (DRAG_COEFF);
 	}
 
 	void FixedUpdate()
@@ -247,8 +245,6 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void ApplyGravity() {
-		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
-
 		// TODO: filter duplicates eg. GameObject with two colliders
 		foreach(GameObject obj in gravityObjects) {
 			Vector3 toObj = obj.transform.position - m_Body.transform.position;

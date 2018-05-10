@@ -10,6 +10,10 @@ public class DebugUI : MonoBehaviour {
 
 	private Dictionary<string, Text> values = new Dictionary<string, Text>();
 
+	void Awake() {
+		gameObject.SetActive (Debug.isDebugBuild);
+	}
+
 	public void UpdateVar(string name, string value) {
 		if (!values.ContainsKey (name)) {
 			CreateNewText (name);
