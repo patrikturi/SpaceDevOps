@@ -1388,6 +1388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70c3f91fda529d149a8334fbf112f31d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_DebugPanel: {fileID: 1372256405}
   m_HelpPanel: {fileID: 522327672}
   m_QuitPanel: {fileID: 553722476}
 --- !u!4 &1412237291

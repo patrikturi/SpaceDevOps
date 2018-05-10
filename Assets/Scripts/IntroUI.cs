@@ -5,11 +5,15 @@ using UnityEngine.UI;
 
 public class IntroUI : MonoBehaviour {
 
-	private const float INTRO_HELP_TIME = 20f;
+	private const float INTRO_HELP_TIME = 10f;
 
 	void Start()
 	{
-		StartCoroutine(DelayedTask());
+		if (Debug.isDebugBuild) {
+			gameObject.SetActive (false);
+		} else {
+			StartCoroutine (DelayedTask ());
+		}
 	}
 
 	IEnumerator DelayedTask()

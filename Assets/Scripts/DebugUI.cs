@@ -10,11 +10,10 @@ public class DebugUI : MonoBehaviour {
 
 	private Dictionary<string, Text> values = new Dictionary<string, Text>();
 
-	void Awake() {
-		gameObject.SetActive (Debug.isDebugBuild);
-	}
-
 	public void UpdateVar(string name, string value) {
+		if (!Debug.isDebugBuild) {
+			return;
+		}
 		if (!values.ContainsKey (name)) {
 			CreateNewText (name);
 		}
@@ -22,6 +21,9 @@ public class DebugUI : MonoBehaviour {
 	}
 
 	private void CreateNewText(string name) {
+		if (!Debug.isDebugBuild) {
+			return;
+		}
 		GameObject nameObject = (GameObject)Instantiate (m_NamePrefab);
 		Text nameText = nameObject.GetComponent<Text> ();
 		nameText.text = name;
@@ -38,6 +40,9 @@ public class DebugUI : MonoBehaviour {
 	}
 
 	public Text getText(string name) {
+		if (!Debug.isDebugBuild) {
+			return null;
+		}
 		return values [name];
 	}
 }

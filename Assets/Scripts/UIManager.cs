@@ -4,11 +4,13 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour {
 
+	public GameObject m_DebugPanel;
 	public GameObject m_HelpPanel;
 	public GameObject m_QuitPanel;
 
 	void Awake () {
 		Cursor.visible = false;
+		m_DebugPanel.SetActive (Debug.isDebugBuild);
 	}
 
 	void OnGUI() {
