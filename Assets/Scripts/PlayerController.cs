@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour {
 
 	private float STEER_FORCE_DIFF_MULT;
 
-	private const float GRAVITY_RADIUS = 50.0f;
+	private const float GRAVITY_RADIUS = 75.0f;
 	private float DRAG_COEFF;
 	private float GRAVITY_ACC = 7.5f;
 
