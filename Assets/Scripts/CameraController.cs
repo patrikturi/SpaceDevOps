@@ -7,7 +7,8 @@ public class CameraController : MonoBehaviour {
 	public GameObject m_Target;
 
 	private string CAMERA_BUTTON = "Camera";
-	private Vector3 POS_OFFSET = new Vector3(0, 5.5f, -10f);
+	private Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.48f, -0.88f);
+	private float POS_OFFSET_MAG_DEFAULT = 11.41f;
 	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private float UP_SMOOTHING_STEP;
 
@@ -38,7 +39,18 @@ public class CameraController : MonoBehaviour {
 			m_CameraUp = targetTr.up; // Needed to transition smoothly into Third Person Camera
 		} else { // Third Person Camera
 			m_TargetRenderer.enabled = true;
-			Vector3 desiredPos = targetTr.position + targetTr.rotation * POS_OFFSET;
+
+			RaycastHit hit;
+			float posOffsetMag;
+
+			if (Physics.Raycast(targetTr.position, targetTr.rotation * POS_OFFSET_DIR, out hit, POS_OFFSET_MAG_DEFAULT)) {
+				posOffsetMag = hit.distance;
+			} else {
+				posOffsetMag = POS_OFFSET_MAG_DEFAULT;
+			}
+
+			Vector3 desiredPos = targetTr.position + targetTr.rotation * (POS_OFFSET_DIR * posOffsetMag);
+
 			Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref m_Velocity, POS_SMOOTHING_DURATION,
 				                Mathf.Infinity, Time.fixedDeltaTime);
 

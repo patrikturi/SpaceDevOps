@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviour {
 	// Related to gravity
 	private const float SCAN_INTERVAL = 0.2f;
 	private int SCAN_FRAME_SKIP;
-	private int scan_cur_frame = 0;
+	private int m_Scan_cur_frame = 0;
 
 	private float m_ThrustInput;
 	private float m_BrakeInput;
@@ -73,10 +73,10 @@ public class PlayerController : MonoBehaviour {
 		ApplyOrthoForce ();
 		ApplySteeringForce ();
 
-		scan_cur_frame++;
-		if (scan_cur_frame >= SCAN_FRAME_SKIP) {
+		m_Scan_cur_frame++;
+		if (m_Scan_cur_frame >= SCAN_FRAME_SKIP) {
 			UpdateGravityObjects();
-			scan_cur_frame = 0;
+			m_Scan_cur_frame = 0;
 		}
 		ApplyGravity ();
 
@@ -231,6 +231,7 @@ public class PlayerController : MonoBehaviour {
 	private List<GameObject> gravityObjects = new List<GameObject> ();
 
 	void UpdateGravityObjects() {
+		// TODO: delay by one frame per player number
 		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
 
 		gravityObjects.Clear ();
