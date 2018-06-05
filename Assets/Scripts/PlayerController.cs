@@ -44,7 +44,6 @@ public class PlayerController : MonoBehaviour {
 	private float m_BrakeInput;
 	private float m_FwdInput;
 	private float m_OrthoInput;
-	private float m_UpVectorSign = 1f;
 
 	private Rigidbody m_Body;
 
@@ -61,10 +60,6 @@ public class PlayerController : MonoBehaviour {
 		m_FwdMotor = new PController (FWD_ACC_RATIO);
 		m_FwdDamping = new PController (FWD_DAMPING_RATIO);
 		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
-	}
-
-	public void FlipUpVector() {
-		m_UpVectorSign *= -1f;
 	}
 
 	void FixedUpdate()
@@ -178,7 +173,7 @@ public class PlayerController : MonoBehaviour {
 
 		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(m_Body.transform.forward, m_Body.velocity));
 		if (Mathf.Abs (m_FwdInput) > 0.1f) {
-			targetAngSpeed = Mathf.Sign (m_FwdInput) * MAX_STEER_ANG_SPEED * m_UpVectorSign;
+			targetAngSpeed = Mathf.Sign (m_FwdInput) * MAX_STEER_ANG_SPEED;
 			// Make steering slower at a slow linear velocity
 			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / STEER_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
