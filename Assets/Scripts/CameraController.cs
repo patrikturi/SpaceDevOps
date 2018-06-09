@@ -72,12 +72,12 @@ public class CameraController : MonoBehaviour {
 				Vector3 proposedNewDir = new Vector3 (POS_OFFSET_DIR.x, -POS_OFFSET_DIR.y, POS_OFFSET_DIR.z);
 				Vector3 proposedDirAbs = targetTr.rotation * proposedNewDir;
 				// 2) The new view has to be free
-				if (!Physics.Raycast (targetTr.position, proposedDirAbs, out hit, POS_OFFSET_MAG_DEFAULT) ||
-					!hit.transform.gameObject.tag.Contains (LARGE_OBJECT_TAG)) {
-
+				bool raycast2Result = Physics.Raycast (targetTr.position, proposedDirAbs, out hit, POS_OFFSET_MAG_DEFAULT);
+				if (!raycast2Result || !hit.transform.gameObject.tag.Contains (LARGE_OBJECT_TAG)) {
+					
 					m_OffsetYAxisSign = -1;
 					// Check max camera distance at the new view
-					if (Physics.Raycast (targetTr.position, proposedDirAbs, out hit, POS_OFFSET_MAG_DEFAULT)) {
+					if (raycast2Result) {
 						posOffsetMag = hit.distance;
 					} else {
 						posOffsetMag = POS_OFFSET_MAG_DEFAULT;
