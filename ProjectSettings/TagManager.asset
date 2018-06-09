@@ -4,8 +4,8 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - GRAVITY
-  - GRAVITY LARGE
+  - SPHERE_GRAVITY LARGE
+  - DIR_GRAVITY LARGE
   layers:
   - Default
   - TransparentFX

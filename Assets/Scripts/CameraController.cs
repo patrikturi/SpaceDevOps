@@ -15,7 +15,6 @@ public class CameraController : MonoBehaviour {
 	private float UP_SMOOTHING_STEP;
 
 	private MeshRenderer m_TargetRenderer;
-	private PlayerController m_TargetController;
 	private Vector3 m_CameraUp;
 	// Shift Y axis to negative value if current view collides with a large object
 	private int m_OffsetYAxisSign = 1;
@@ -27,8 +26,6 @@ public class CameraController : MonoBehaviour {
 		m_TargetRenderer = m_Target.GetComponent<MeshRenderer> ();
 		UP_SMOOTHING_STEP = 1f * Time.fixedDeltaTime;
 		m_CameraUp = m_Target.transform.up;
-
-		m_TargetController = m_Target.GetComponent<PlayerController> ();
 	}
 
 	void FixedUpdate () {

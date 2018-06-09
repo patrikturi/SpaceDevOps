@@ -25,7 +25,7 @@ GameObject:
   - component: {fileID: 135899979478455528}
   m_Layer: 0
   m_Name: Planet
-  m_TagString: GRAVITY LARGE
+  m_TagString: SPHERE_GRAVITY LARGE
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

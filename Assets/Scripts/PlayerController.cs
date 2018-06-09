@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour {
 
 	public DebugUI m_DebugUI;
 	public Transform m_BoundsFront;
+	public GameObject m_PlatformPrefab;
 
 	private string THRUST_AXIS = "Thrust";
 	private string BRAKE_AXIS = "Brake";
@@ -26,6 +27,7 @@ public class PlayerController : MonoBehaviour {
 
 	private const float MAX_STEER_ANG_SPEED = 1.75f;
 	private const float STEER_ANG_ACC_RATIO = 3.5f;
+	private const float STEER_LANDED_ANG_ACC_RATIO = 14f;
 	private const float STEER_ANG_DECC_RATIO = 9f;
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
@@ -56,6 +58,13 @@ public class PlayerController : MonoBehaviour {
 	private float BOUNDS_PUSH_RANGE = 10f;
 	private float BOUNDS_PUSH_MAG = 5f;
 
+	private const float PLATFORM_GRAVITY_MAX_HEIGHT = 25f;
+	private const float PLATFORM_GRAVITY_MIN_HEIGHT = -10f;
+	// Max height from the platform to the ship when the ship is still considered as landed
+	private float PLATFORM_MAX_LANDING_HEIGHT;
+	private BoxCollider m_PlatformCollider;
+	private bool m_LandedOnPlatform = false;
+
 	void Awake() {
 		m_Body = GetComponent<Rigidbody> ();
 		m_Body.inertiaTensorRotation = Quaternion.identity;
@@ -68,7 +77,15 @@ public class PlayerController : MonoBehaviour {
 		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
 
 		BOUNDS_SIZE = m_BoundsFront.localScale.x / 2f;
-	} 	
+
+		m_PlatformCollider = m_PlatformPrefab.GetComponent<BoxCollider> ();
+
+		float platformSize = m_PlatformCollider.size.y * m_PlatformPrefab.transform.localScale.y / 2f;
+		CapsuleCollider shipCollider = GetComponent<CapsuleCollider> ();
+		float shipSize = shipCollider.height * shipCollider.transform.localScale.y / 2f;
+		float maxLandedOffset = 0.5f;
+		PLATFORM_MAX_LANDING_HEIGHT = platformSize + shipSize + maxLandedOffset;
+	}
 
 	void FixedUpdate()
 	{
@@ -86,7 +103,9 @@ public class PlayerController : MonoBehaviour {
 			UpdateGravityObjects();
 			m_Scan_cur_frame = 0;
 		}
+		gravCnt = sphereGravityObjects.Count;
 		ApplyGravity ();
+		m_DebugUI.UpdateVar ("Grav", gravCnt.ToString());
 		ApplyBoundsForce ();
 
 		ApplyRotation ();
@@ -97,18 +116,19 @@ public class PlayerController : MonoBehaviour {
 	void ApplyFwdForce()
 	{
 		float targetSpeed = GetTargetSpeed ();
-		bool engineOn = isEngineOn();
+		bool engineOn = isEngineOn ();
 		Vector3 fwd = m_Body.transform.forward;
 		float fwdSpeed = Vector3.Dot (fwd, m_Body.velocity);
-		m_DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString("0.0"));
+		m_DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
 
 		PController controller;
-		if (engineOn) {
+		if (engineOn || m_LandedOnPlatform) {
 			controller = m_FwdMotor;
 
+			// Braking or (landed and no controls)
 			if (targetSpeed < 0.1f) {
 				m_FwdMotor.setMinOutput (MIN_FWD_DECC);
-			} else {
+			} else { // Throttling
 				m_FwdMotor.clearMinOutput ();
 			}
 		} else {
@@ -186,7 +206,10 @@ public class PlayerController : MonoBehaviour {
 			// Make steering slower at a slow linear velocity
 			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / STEER_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
-			angAccRatio = STEER_ANG_ACC_RATIO;
+
+			// Increase steering strength when landed: otherwise the ship
+			// is unable to take off from a platform
+			angAccRatio = m_LandedOnPlatform ? STEER_LANDED_ANG_ACC_RATIO : STEER_ANG_ACC_RATIO;
 		} else {
 			targetAngSpeed = 0f;
 			angAccRatio = STEER_ANG_DECC_RATIO;
@@ -237,32 +260,79 @@ public class PlayerController : MonoBehaviour {
 		m_Body.AddForce (dragForce);
 	}
 
-	private List<GameObject> gravityObjects = new List<GameObject> ();
+	// Gravity towards the center of the sphere
+	private List<GameObject> sphereGravityObjects = new List<GameObject> ();
+	// Gravity in a single direction
+	private List<GameObject> directionalGravityObjects = new List<GameObject> ();
+
+	private int gravCnt = 0;
 
 	void UpdateGravityObjects() {
 		// TODO: delay by one frame per player number
 		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
 
-		gravityObjects.Clear ();
+		sphereGravityObjects.Clear ();
 		// TODO: filter duplicates
 		foreach (Collider collider in hitColliders) {
 			GameObject obj = collider.gameObject;
-			if (obj.tag.Contains ("GRAVITY")) {
-				gravityObjects.Add (obj);
+			if (obj.tag.Contains ("SPHERE_GRAVITY")) {
+				sphereGravityObjects.Add (obj);
 			}
 		}
-		m_DebugUI.UpdateVar ("Grav", gravityObjects.Count.ToString());
+
+		directionalGravityObjects.Clear ();
+		foreach (Collider collider in hitColliders) {
+			GameObject obj = collider.gameObject;
+			if (obj.tag.Contains ("DIR_GRAVITY")) {
+				directionalGravityObjects.Add (obj);
+			}
+		}
 	}
 
 	void ApplyGravity() {
+
+		m_LandedOnPlatform = false;
+
 		// TODO: filter duplicates eg. GameObject with two colliders
-		foreach(GameObject obj in gravityObjects) {
+		foreach(GameObject obj in sphereGravityObjects) {
 			Vector3 toObj = obj.transform.position - m_Body.transform.position;
+			toObj.Normalize ();
 
 			float forceMag = m_Body.mass * GRAVITY_ACC;
-			toObj.Normalize ();
-			Vector3 force = forceMag * toObj;
-			m_Body.AddForce (force);
+			m_Body.AddForce (forceMag * toObj);
+		}
+
+		// Warning: The platform is expected to have Y up rotation
+		foreach (GameObject obj in directionalGravityObjects) {
+
+			Vector3 platformGravityArea = new Vector3 (m_PlatformCollider.size.x, PLATFORM_GRAVITY_MAX_HEIGHT*2f, m_PlatformCollider.size.z);
+			float rotation = obj.transform.rotation.eulerAngles.y;
+			Vector3 rotatedArea = Quaternion.AngleAxis (rotation, Vector3.up) * platformGravityArea;
+			platformGravityArea = new Vector3 (Mathf.Abs (rotatedArea.x), rotatedArea.y, Mathf.Abs (rotatedArea.z));
+
+			Bounds platformBounds = new Bounds(obj.transform.position, platformGravityArea);
+
+			if (!platformBounds.Contains (transform.position)) {
+				return;
+			}
+
+			float height = transform.position.y - obj.transform.position.y;
+			if (height < PLATFORM_GRAVITY_MIN_HEIGHT) {
+				return;
+			}
+
+			float platformToShip = m_Body.position.y - obj.transform.position.y;
+
+			if (platformToShip > 0f && platformToShip < PLATFORM_MAX_LANDING_HEIGHT) {
+				m_LandedOnPlatform = true;
+			}
+
+			gravCnt++;
+
+			Vector3 gravityDir = Vector3.down;
+
+			float forceMag = m_Body.mass * GRAVITY_ACC;
+			m_Body.AddForce (forceMag * gravityDir);
 		}
 	}
 
