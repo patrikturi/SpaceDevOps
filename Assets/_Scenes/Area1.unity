@@ -513,6 +513,8 @@ MonoBehaviour:
   material: {fileID: 2100000, guid: 67b9e57ce1cbdd640a519f00b102d737, type: 2}
   m_Camera: {fileID: 372924581}
   m_ShipTransform: {fileID: 2116578130}
+  m_BoundsFront: {fileID: 1967061237}
+  m_DebugBounds: 0
 --- !u!1 &488353183
 GameObject:
   m_ObjectHideFlags: 0
@@ -2719,6 +2721,11 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 0b8980b0595eae441acaa1276188104a, type: 3}
   m_IsPrefabParent: 0
+--- !u!4 &1967061237 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4397310255862608, guid: c47f9f09115758e4eb480ad5fd0cbc66,
+    type: 2}
+  m_PrefabInternal: {fileID: 1759394542}
 --- !u!1 &2032144372
 GameObject:
   m_ObjectHideFlags: 0
@@ -2837,6 +2844,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DebugUI: {fileID: 1372256408}
+  m_BoundsFront: {fileID: 1967061237}
 --- !u!4 &2116578130 stripped
 Transform:
   m_PrefabParentObject: {fileID: 400000, guid: 0b8980b0595eae441acaa1276188104a, type: 3}

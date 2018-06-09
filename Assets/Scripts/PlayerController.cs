@@ -1,10 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
 	public DebugUI m_DebugUI;
+	public Transform m_BoundsFront;
 
 	private string THRUST_AXIS = "Thrust";
 	private string BRAKE_AXIS = "Brake";
@@ -50,6 +52,10 @@ public class PlayerController : MonoBehaviour {
 	private PController m_FwdMotor;
 	private PController m_FwdDamping;
 
+	private float BOUNDS_SIZE;
+	private float BOUNDS_PUSH_RANGE = 10f;
+	private float BOUNDS_PUSH_MAG = 5f;
+
 	void Awake() {
 		m_Body = GetComponent<Rigidbody> ();
 		m_Body.inertiaTensorRotation = Quaternion.identity;
@@ -60,7 +66,9 @@ public class PlayerController : MonoBehaviour {
 		m_FwdMotor = new PController (FWD_ACC_RATIO);
 		m_FwdDamping = new PController (FWD_DAMPING_RATIO);
 		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
-	}
+
+		BOUNDS_SIZE = m_BoundsFront.localScale.x / 2f;
+	} 	
 
 	void FixedUpdate()
 	{
@@ -79,6 +87,7 @@ public class PlayerController : MonoBehaviour {
 			m_Scan_cur_frame = 0;
 		}
 		ApplyGravity ();
+		ApplyBoundsForce ();
 
 		ApplyRotation ();
 		ApplySteering ();
@@ -254,6 +263,34 @@ public class PlayerController : MonoBehaviour {
 			toObj.Normalize ();
 			Vector3 force = forceMag * toObj;
 			m_Body.AddForce (force);
+		}
+	}
+
+	// Toss away from the game bounds if very close
+	// This will prevent getting stuck eg. in a corner
+	void ApplyBoundsForce() {
+		ApplyBoundsForceAxis (0, m_Body.transform.position.x);
+		ApplyBoundsForceAxis (1, m_Body.transform.position.y);
+		ApplyBoundsForceAxis (2, m_Body.transform.position.z);
+	}
+
+	private void ApplyBoundsForceAxis(int axisIndex, float position) {
+		if (BOUNDS_SIZE - Mathf.Abs (position) < BOUNDS_PUSH_RANGE) {
+			float sign = -Mathf.Sign (position);
+			Vector3 dir;
+			if (axisIndex == 0) {
+				dir = new Vector3 (sign, 0, 0);
+			}
+			else if (axisIndex == 1) {
+				dir = new Vector3 (0, sign, 0);
+			}
+			else if (axisIndex == 2) {
+				dir = new Vector3 (0, 0, sign);
+			} else {
+				throw new Exception ("Unhandled state");
+			}
+			// F = m*a
+			m_Body.AddForce (dir*BOUNDS_PUSH_MAG*m_Body.mass);
 		}
 	}
 }

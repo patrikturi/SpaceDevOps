@@ -8,16 +8,18 @@ public class BoundsRenderer : MonoBehaviour {
 	public Material material;
 	public Camera m_Camera;
 	public Transform m_ShipTransform;
+	public Transform m_BoundsFront;
+	public bool m_DebugBounds = false;
 
-	private const float BOUNDS_SIZE = 600f;
 	private const float BOUNDS_VISIBLE_RANGE = 50f;
 	private const int BOUNDS_CORE_CNT = 5;
 	private const int BOUNDS_FADE_CNT = 7;
 
-	private List<Vector3> m_Lines = new List<Vector3> ();
-	private List<Vector3> m_LinesFading = new List<Vector3> ();
+	private float BOUNDS_SIZE;
 
-	private bool m_DebugBounds = false;
+	void Start() {
+		BOUNDS_SIZE = m_BoundsFront.localScale.x / 2f;
+	}
 
 	void OnPostRender() {
 
