@@ -277,6 +277,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HealthBar: {fileID: 0}
+  m_ExplosionPrefab: {fileID: 1275090913796180, guid: 6400d28a6b2c8a54881779718aaefbb1,
+    type: 2}
 --- !u!114 &114579039339113708
 MonoBehaviour:
   m_ObjectHideFlags: 1
