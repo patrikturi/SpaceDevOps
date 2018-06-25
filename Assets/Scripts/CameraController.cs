@@ -28,6 +28,20 @@ public class CameraController : MonoBehaviour {
 		m_CameraUp = m_Target.transform.up;
 	}
 
+	public void Reset() {
+		Transform targetTr = m_Target.transform;
+
+		m_CameraUp = targetTr.up;
+		if (m_FirstPersonCamera) {
+			transform.position = targetTr.position;
+			transform.rotation = targetTr.rotation;
+		} else {
+			Vector3 desiredPos = targetTr.position + targetTr.rotation * (POS_OFFSET_DIR * POS_OFFSET_MAG_DEFAULT);
+			transform.position = desiredPos;
+			transform.LookAt (targetTr.position, m_CameraUp);
+		}
+	}
+
 	void FixedUpdate () {
 		Transform targetTr = m_Target.transform;
 		if (Input.GetButtonDown (CAMERA_BUTTON)) {

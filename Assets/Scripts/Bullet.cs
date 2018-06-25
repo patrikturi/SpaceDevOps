@@ -15,8 +15,11 @@ public class Bullet : MonoBehaviour {
 		// Ship wings
 		// TODO: should hitting the wing take less damage?
 		if(health == null && hitObject.name.Contains("Wing")) {
-			GameObject parentObject = hitObject.transform.parent.gameObject;
-			health = parentObject.GetComponent<Health> ();
+			Transform parent = hitObject.transform.parent;
+			if (parent != null) {
+				GameObject parentObject = parent.gameObject;
+				health = parentObject.GetComponent<Health> ();
+			}
 		}
 
 		if (health != null) {

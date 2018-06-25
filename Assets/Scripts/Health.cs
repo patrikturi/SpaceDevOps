@@ -18,19 +18,38 @@ public class Health : MonoBehaviour {
 		INITIAL_WIDTH = m_HealthBar.sizeDelta.x;
 	}
 
+	public void Reset() {
+		setHealth (MAX_HEALTH);
+	}
+
+	void OnGUI() {
+		Event e = Event.current;
+
+		if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.D) {
+			takeDamage (MAX_HEALTH);
+		}
+	}
+
 	public void takeDamage(int amount) {
-		m_CurrentHealth -= amount;
 		if (m_CurrentHealth <= 0) {
-			m_CurrentHealth = 0;
+			return;
+		}
+
+		if (m_CurrentHealth > amount) {
+			setHealth (m_CurrentHealth - amount);
+		} else {
 			die ();
 		}
+	}
+
+	private void setHealth(int health) {
+		m_CurrentHealth = health;
 		m_HealthBar.sizeDelta = new Vector2(INITIAL_WIDTH*m_CurrentHealth/MAX_HEALTH, m_HealthBar.sizeDelta.y);
 	}
 
-	GameObject explosion;
-
 	private void die() {
-		explosion = (GameObject)Instantiate (m_ExplosionPrefab, transform.position + transform.forward*0.75f, transform.rotation);
+		setHealth (0);
+		GameObject explosion = (GameObject)Instantiate (m_ExplosionPrefab, transform.position + transform.forward*0.75f, transform.rotation);
 
 		Rigidbody body = GetComponent<Rigidbody> ();
 		Rigidbody expBody = explosion.GetComponent<Rigidbody> ();

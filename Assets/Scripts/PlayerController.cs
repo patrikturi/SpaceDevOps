@@ -324,7 +324,10 @@ public class PlayerController : MonoBehaviour {
 			float platformToShip = m_Body.position.y - obj.transform.position.y;
 
 			if (platformToShip > 0f && platformToShip < PLATFORM_MAX_LANDING_HEIGHT) {
-				m_LandedOnPlatform = true;
+				float angleBetween = Vector3.Angle (obj.transform.up, transform.up);
+				if (Mathf.Abs (angleBetween) < 45f || Mathf.Abs (angleBetween) > 135f) {
+					m_LandedOnPlatform = true;
+				}
 			}
 
 			gravCnt++;
