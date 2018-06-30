@@ -32,6 +32,7 @@ public class PlayerController : MonoBehaviour {
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
 	private float STEER_FORCE_DIFF_MULT;
+	private float ORTHO_FORCE_DIFF_MULT;
 
 	private const float GRAVITY_RADIUS = 75.0f;
 	private float DRAG_COEFF;
@@ -70,6 +71,7 @@ public class PlayerController : MonoBehaviour {
 		m_Body.inertiaTensorRotation = Quaternion.identity;
 		DRAG_COEFF = m_Body.mass * 0.5f;
 		STEER_FORCE_DIFF_MULT = 20f * m_Body.mass;
+		ORTHO_FORCE_DIFF_MULT = 10f * m_Body.mass;
 		SCAN_FRAME_SKIP = (int)Mathf.Round(SCAN_INTERVAL / Time.fixedDeltaTime);
 
 		m_FwdMotor = new PController (FWD_ACC_RATIO);
@@ -163,10 +165,20 @@ public class PlayerController : MonoBehaviour {
 		Vector3 right = m_Body.transform.right;
 		float orthoSpeed = Vector3.Dot (right, m_Body.velocity);
 
-		// a = dv/dt
-		float orthoAcc = -orthoSpeed / Time.fixedDeltaTime;
-		Vector3 orthoForce = m_Body.mass * orthoAcc * right;
-		m_Body.AddForce (orthoForce);
+		// F = m * dv/dt
+		float maxForceMag = m_Body.mass * Mathf.Abs(orthoSpeed)/Time.fixedDeltaTime;
+
+		float yAngSpeed = Vector3.Dot (m_Body.transform.forward, m_Body.angularVelocity);
+
+		float dragForceMag = Mathf.Abs (orthoSpeed) * DRAG_COEFF;
+		float diffForceMag = Mathf.Abs(ORTHO_FORCE_DIFF_MULT * yAngSpeed);
+
+		float orthoForceMag = dragForceMag + diffForceMag;
+
+		orthoForceMag = Mathf.Min (orthoForceMag, maxForceMag);
+
+		Vector3 dragForce = -Mathf.Sign(orthoSpeed) * orthoForceMag * right ;
+		m_Body.AddForce (dragForce);
 	}
 
 	void ApplyRotation()
