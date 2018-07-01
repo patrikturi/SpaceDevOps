@@ -1,0 +1,13 @@
+The following textures have been created with the use of material from http://textures.com
+- Platform texture
+
+textures.com license:
+May I use these textures for free? Do I need to pay royalties?
+
+Yes, the textures may be used for free in 2D or 3D computer graphics, movies, printed media, computer games and 3D models. When bundled with a 3D model or scene you are allowed to sell it as a package.
+
+No permission is granted to sell or redistribute the textures as a competing product, even when the images are modified. Please do not redistribute or sell textures by themselves, or as texture packs, or as clipart, or as material packs, or as scrapbooking packs.
+
+May I release these textures under an Open Source (Creative Commons, GPL, etc) license?
+ 
+No. These textures may not be released under Open Source licenses. Almost all Open-Source licenses allow unlimited redistribution of the materials, and redistribution is not allowed for these textures. This is a common problem with art resources (textures, sound, etc), not just our images. A possible solution is to release the art materials of the project under a closed sourced license.
