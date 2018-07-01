@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour {
 
-	public GameObject m_DebugPanel;
-	public GameObject m_HelpPanel;
-	public GameObject m_QuitPanel;
+	public GameObject DebugPanel;
+	public GameObject HelpPanel;
+	public GameObject QuitPanel;
 
 	void Awake () {
 		Cursor.visible = false;
-		m_DebugPanel.SetActive (Debug.isDebugBuild);
+		DebugPanel.SetActive (Debug.isDebugBuild);
 	}
 
 	void OnGUI() {
 		Event e = Event.current;
 		if (e.type == EventType.KeyDown) {
 			if (e.keyCode == KeyCode.F1) {
-				m_HelpPanel.SetActive (true);
+				HelpPanel.SetActive (true);
 			} else if (e.keyCode == KeyCode.Escape) {
-				m_QuitPanel.SetActive (true);
+				QuitPanel.SetActive (true);
 			}
 		} else if (e.type == EventType.KeyUp) {
 			if (e.keyCode == KeyCode.F1) {
-				m_HelpPanel.SetActive (false);
+				HelpPanel.SetActive (false);
 			}
 		}
 	}

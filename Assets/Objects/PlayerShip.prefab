@@ -571,10 +571,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39ee2a4e911e48f4fb40308b1660c874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_BulletPrefab: {fileID: 1410156715282176, guid: 5eb922e7facfce4408e2cf56543dad3a,
+  BulletPrefab: {fileID: 1410156715282176, guid: 5eb922e7facfce4408e2cf56543dad3a,
     type: 2}
-  m_BulletSpawnRight: {fileID: 4930812679302698}
-  m_BulletSpawnLeft: {fileID: 4523524814019444}
+  BulletSpawnRight: {fileID: 0}
+  BulletSpawnLeft: {fileID: 0}
 --- !u!114 &114101853426442054
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -586,10 +586,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 222c57001bef26e4e874273d7f9e2a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HealthBar: {fileID: 0}
-  m_ExplosionPrefab: {fileID: 1275090913796180, guid: 6400d28a6b2c8a54881779718aaefbb1,
+  HealthBar: {fileID: 0}
+  ExplosionPrefab: {fileID: 1275090913796180, guid: 6400d28a6b2c8a54881779718aaefbb1,
     type: 2}
-  m_HitParticlesHost: {fileID: 1178468691109772}
+  HitParticlesHost: {fileID: 0}
 --- !u!114 &114579039339113708
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -601,9 +601,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16b654e11c4070c45853f75ce5cbe3f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_DebugUI: {fileID: 0}
-  m_BoundsFront: {fileID: 0}
-  m_PlatformPrefab: {fileID: 1015716511143344, guid: dc370c34a7e771e4ba3181d13b8ec1c6,
+  DebugUI: {fileID: 0}
+  BoundsFront: {fileID: 0}
+  PlatformPrefab: {fileID: 1015716511143344, guid: dc370c34a7e771e4ba3181d13b8ec1c6,
     type: 2}
 --- !u!136 &136005519190228994
 CapsuleCollider:

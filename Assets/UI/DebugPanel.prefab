@@ -62,9 +62,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9440f479e0f20454592e93246a6df442, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NamePrefab: {fileID: 1683891257661180, guid: dde33864c7c5e764ba7196ac6301e224,
-    type: 2}
-  m_ValuePrefab: {fileID: 1185536659383668, guid: 81bfc9015b99c8f44a48ebbdef8accf8,
+  NamePrefab: {fileID: 1683891257661180, guid: dde33864c7c5e764ba7196ac6301e224, type: 2}
+  ValuePrefab: {fileID: 1185536659383668, guid: 81bfc9015b99c8f44a48ebbdef8accf8,
     type: 2}
 --- !u!224 &224045797478064796
 RectTransform:

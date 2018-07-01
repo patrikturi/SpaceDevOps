@@ -23,7 +23,7 @@ public class Bullet : MonoBehaviour {
 		}
 
 		if (health != null) {
-			health.takeDamage (BULLET_DAMAGE);
+			health.TakeDamage (BULLET_DAMAGE);
 		}
 
 		Destroy (gameObject);

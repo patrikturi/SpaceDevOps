@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	public DebugUI m_DebugUI;
-	public Transform m_BoundsFront;
-	public GameObject m_PlatformPrefab;
+	public DebugUI DebugUI;
+	public Transform BoundsFront;
+	public GameObject PlatformPrefab;
 
-	private string THRUST_AXIS = "Thrust";
-	private string BRAKE_AXIS = "Brake";
-	private string FWD_AXIS = "Vertical";
-	private string ORTHO_AXIS = "Horizontal";
+	private const string THRUST_AXIS = "Thrust";
+	private const string BRAKE_AXIS = "Brake";
+	private const string FWD_AXIS = "Vertical";
+	private const string ORTHO_AXIS = "Horizontal";
 
 	private const float MAX_SPEED = 25;
 	private const float FWD_ACC_RATIO = 0.75f;
@@ -31,58 +31,58 @@ public class PlayerController : MonoBehaviour {
 	private const float STEER_ANG_DECC_RATIO = 9f;
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
-	private float STEER_FORCE_DIFF_MULT;
-	private float ORTHO_FORCE_DIFF_MULT;
+	private static float STEER_FORCE_DIFF_MULT;
+	private static float ORTHO_FORCE_DIFF_MULT;
 
 	private const float GRAVITY_RADIUS = 75.0f;
-	private float DRAG_COEFF;
-	private float GRAVITY_ACC = 7.5f;
+	private static float DRAG_COEFF;
+	private const float GRAVITY_ACC = 7.5f;
 
 	private const string SPEED_UI_KEY = "Speed";
 
 	// Related to gravity
 	private const float SCAN_INTERVAL = 0.2f;
-	private int SCAN_FRAME_SKIP;
-	private int m_Scan_cur_frame = 0;
+	private static int SCAN_FRAME_SKIP;
+	private int scan_cur_frame = 0;
 
-	private float m_ThrustInput;
-	private float m_BrakeInput;
-	private float m_FwdInput;
-	private float m_OrthoInput;
+	private float thrustInput;
+	private float brakeInput;
+	private float fwdInput;
+	private float orthoInput;
 
-	private Rigidbody m_Body;
+	private Rigidbody body;
 
-	private PController m_FwdMotor;
-	private PController m_FwdDamping;
+	private PController fwdMotor;
+	private PController fwdDamping;
 
-	private float BOUNDS_SIZE;
-	private float BOUNDS_PUSH_RANGE = 10f;
-	private float BOUNDS_PUSH_MAG = 5f;
+	private static float BOUNDS_SIZE;
+	private const float BOUNDS_PUSH_RANGE = 10f;
+	private const float BOUNDS_PUSH_MAG = 5f;
 
 	private const float PLATFORM_GRAVITY_MAX_HEIGHT = 25f;
 	private const float PLATFORM_GRAVITY_MIN_HEIGHT = -10f;
 	// Max height from the platform to the ship when the ship is still considered as landed
-	private float PLATFORM_MAX_LANDING_HEIGHT;
-	private BoxCollider m_PlatformCollider;
-	private bool m_LandedOnPlatform = false;
+	private static float PLATFORM_MAX_LANDING_HEIGHT;
+	private BoxCollider platformCollider;
+	private bool landedOnPlatform = false;
 
 	void Awake() {
-		m_Body = GetComponent<Rigidbody> ();
-		m_Body.inertiaTensorRotation = Quaternion.identity;
-		DRAG_COEFF = m_Body.mass * 0.5f;
-		STEER_FORCE_DIFF_MULT = 20f * m_Body.mass;
-		ORTHO_FORCE_DIFF_MULT = 10f * m_Body.mass;
+		body = GetComponent<Rigidbody> ();
+		body.inertiaTensorRotation = Quaternion.identity;
+		DRAG_COEFF = body.mass * 0.5f;
+		STEER_FORCE_DIFF_MULT = 20f * body.mass;
+		ORTHO_FORCE_DIFF_MULT = 10f * body.mass;
 		SCAN_FRAME_SKIP = (int)Mathf.Round(SCAN_INTERVAL / Time.fixedDeltaTime);
 
-		m_FwdMotor = new PController (FWD_ACC_RATIO);
-		m_FwdDamping = new PController (FWD_DAMPING_RATIO);
-		m_FwdDamping.setMinOutput(MIN_FWD_DAMPING);
+		fwdMotor = new PController (FWD_ACC_RATIO);
+		fwdDamping = new PController (FWD_DAMPING_RATIO);
+		fwdDamping.SetMinOutput(MIN_FWD_DAMPING);
 
-		BOUNDS_SIZE = m_BoundsFront.localScale.x / 2f;
+		BOUNDS_SIZE = BoundsFront.localScale.x / 2f;
 
-		m_PlatformCollider = m_PlatformPrefab.GetComponent<BoxCollider> ();
+		platformCollider = PlatformPrefab.GetComponent<BoxCollider> ();
 
-		float platformSize = m_PlatformCollider.size.y * m_PlatformPrefab.transform.localScale.y / 2f;
+		float platformSize = platformCollider.size.y * PlatformPrefab.transform.localScale.y / 2f;
 		CapsuleCollider shipCollider = GetComponent<CapsuleCollider> ();
 		float shipSize = shipCollider.height * shipCollider.transform.localScale.y / 2f;
 		float maxLandedOffset = 0.5f;
@@ -91,23 +91,23 @@ public class PlayerController : MonoBehaviour {
 
 	void FixedUpdate()
 	{
-		m_ThrustInput = Input.GetAxis (THRUST_AXIS);
-		m_BrakeInput = Input.GetAxis (BRAKE_AXIS);
-		m_FwdInput = Input.GetAxis (FWD_AXIS);
-		m_OrthoInput = Input.GetAxis (ORTHO_AXIS);
+		thrustInput = Input.GetAxis (THRUST_AXIS);
+		brakeInput = Input.GetAxis (BRAKE_AXIS);
+		fwdInput = Input.GetAxis (FWD_AXIS);
+		orthoInput = Input.GetAxis (ORTHO_AXIS);
 
 		ApplyFwdForce ();
 		ApplyOrthoForce ();
 		ApplySteeringForce ();
 
-		m_Scan_cur_frame++;
-		if (m_Scan_cur_frame >= SCAN_FRAME_SKIP) {
+		scan_cur_frame++;
+		if (scan_cur_frame >= SCAN_FRAME_SKIP) {
 			UpdateGravityObjects();
-			m_Scan_cur_frame = 0;
+			scan_cur_frame = 0;
 		}
 		gravCnt = sphereGravityObjects.Count;
 		ApplyGravity ();
-		m_DebugUI.UpdateVar ("Grav", gravCnt.ToString());
+		DebugUI.UpdateVar ("Grav", gravCnt.ToString());
 		ApplyBoundsForce ();
 
 		ApplyRotation ();
@@ -118,57 +118,57 @@ public class PlayerController : MonoBehaviour {
 	void ApplyFwdForce()
 	{
 		float targetSpeed = GetTargetSpeed ();
-		bool engineOn = isEngineOn ();
-		Vector3 fwd = m_Body.transform.forward;
-		float fwdSpeed = Vector3.Dot (fwd, m_Body.velocity);
-		m_DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
+		bool engineOn = IsEngineOn ();
+		Vector3 fwd = body.transform.forward;
+		float fwdSpeed = Vector3.Dot (fwd, body.velocity);
+		DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
 
 		PController controller;
-		if (engineOn || m_LandedOnPlatform) {
-			controller = m_FwdMotor;
+		if (engineOn || landedOnPlatform) {
+			controller = fwdMotor;
 
 			// Braking or (landed and no controls)
 			if (targetSpeed < 0.1f) {
-				m_FwdMotor.setMinOutput (MIN_FWD_DECC);
+				fwdMotor.SetMinOutput (MIN_FWD_DECC);
 			} else { // Throttling
-				m_FwdMotor.clearMinOutput ();
+				fwdMotor.ClearMinOutput ();
 			}
 		} else {
-			controller = m_FwdDamping;
+			controller = fwdDamping;
 		}
 
 		float fwdSpeedDiff = targetSpeed - fwdSpeed;
-		controller.setMaxOutput (fwdSpeedDiff / Time.fixedDeltaTime);
-		float fwdAcc = controller.getOutput(fwdSpeed, targetSpeed);
+		controller.SetMaxOutput (fwdSpeedDiff / Time.fixedDeltaTime);
+		float fwdAcc = controller.GetOutput(fwdSpeed, targetSpeed);
 		// F = m * a
-		Vector3 fwdForce = m_Body.mass * fwdAcc * fwd;
-		m_Body.AddForce (fwdForce);
+		Vector3 fwdForce = body.mass * fwdAcc * fwd;
+		body.AddForce (fwdForce);
 	}
 
 	private float GetTargetSpeed() {
-		if (m_BrakeInput > 0.1f) {
+		if (brakeInput > 0.1f) {
 			return 0f;
-		} else if (m_ThrustInput > 0.1f) {
+		} else if (thrustInput > 0.1f) {
 			return MAX_SPEED;
 		}
 		// Engine turned off
-		Debug.Assert(isEngineOn() == false);
+		Debug.Assert(IsEngineOn() == false);
 		return 0f;
 	}
 
-	private bool isEngineOn() {
-		return (m_ThrustInput > 0.1f) || (m_BrakeInput > 0.1f);
+	private bool IsEngineOn() {
+		return (thrustInput > 0.1f) || (brakeInput > 0.1f);
 	}
 
 	// Damping only
 	void ApplyOrthoForce() {
-		Vector3 right = m_Body.transform.right;
-		float orthoSpeed = Vector3.Dot (right, m_Body.velocity);
+		Vector3 right = body.transform.right;
+		float orthoSpeed = Vector3.Dot (right, body.velocity);
 
 		// F = m * dv/dt
-		float maxForceMag = m_Body.mass * Mathf.Abs(orthoSpeed)/Time.fixedDeltaTime;
+		float maxForceMag = body.mass * Mathf.Abs(orthoSpeed)/Time.fixedDeltaTime;
 
-		float yAngSpeed = Vector3.Dot (m_Body.transform.forward, m_Body.angularVelocity);
+		float yAngSpeed = Vector3.Dot (body.transform.forward, body.angularVelocity);
 
 		float dragForceMag = Mathf.Abs (orthoSpeed) * DRAG_COEFF;
 		float diffForceMag = Mathf.Abs(ORTHO_FORCE_DIFF_MULT * yAngSpeed);
@@ -178,16 +178,16 @@ public class PlayerController : MonoBehaviour {
 		orthoForceMag = Mathf.Min (orthoForceMag, maxForceMag);
 
 		Vector3 dragForce = -Mathf.Sign(orthoSpeed) * orthoForceMag * right ;
-		m_Body.AddForce (dragForce);
+		body.AddForce (dragForce);
 	}
 
 	void ApplyRotation()
 	{
 		float targetAngSpeed;
 		float angAccRatio;
-		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(m_Body.transform.forward, m_Body.velocity));
-		if (Mathf.Abs (m_OrthoInput) > 0.1f) {
-			targetAngSpeed = -Mathf.Sign (m_OrthoInput) * MAX_ROT_ANG_SPEED;
+		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
+		if (Mathf.Abs (orthoInput) > 0.1f) {
+			targetAngSpeed = -Mathf.Sign (orthoInput) * MAX_ROT_ANG_SPEED;
 			// Make rotation slower at a slow linear velocity
 			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / ROT_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
@@ -197,14 +197,14 @@ public class PlayerController : MonoBehaviour {
 			angAccRatio = ROT_ANG_DECC_RATIO;
 		}
 
-		Vector3 fwd = m_Body.transform.forward;
-		float fwdAngSpeed = Vector3.Dot (fwd, m_Body.angularVelocity);
+		Vector3 fwd = body.transform.forward;
+		float fwdAngSpeed = Vector3.Dot (fwd, body.angularVelocity);
 
 		float fwdAngSpeedDiff = targetAngSpeed - fwdAngSpeed;
 		float angAcc = fwdAngSpeedDiff * angAccRatio;
-		float torqueMag = m_Body.inertiaTensor.z * angAcc;
+		float torqueMag = body.inertiaTensor.z * angAcc;
 		Vector3 relTorque = new Vector3(0, 0, torqueMag);
-		m_Body.AddRelativeTorque (relTorque);
+		body.AddRelativeTorque (relTorque);
 	}
 
 	void ApplySteering()
@@ -212,55 +212,55 @@ public class PlayerController : MonoBehaviour {
 		float targetAngSpeed;
 		float angAccRatio;
 
-		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(m_Body.transform.forward, m_Body.velocity));
-		if (Mathf.Abs (m_FwdInput) > 0.1f) {
-			targetAngSpeed = Mathf.Sign (m_FwdInput) * MAX_STEER_ANG_SPEED;
+		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
+		if (Mathf.Abs (fwdInput) > 0.1f) {
+			targetAngSpeed = Mathf.Sign (fwdInput) * MAX_STEER_ANG_SPEED;
 			// Make steering slower at a slow linear velocity
 			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / STEER_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
 
 			// Increase steering strength when landed: otherwise the ship
 			// is unable to take off from a platform
-			angAccRatio = m_LandedOnPlatform ? STEER_LANDED_ANG_ACC_RATIO : STEER_ANG_ACC_RATIO;
+			angAccRatio = landedOnPlatform ? STEER_LANDED_ANG_ACC_RATIO : STEER_ANG_ACC_RATIO;
 		} else {
 			targetAngSpeed = 0f;
 			angAccRatio = STEER_ANG_DECC_RATIO;
 		}
 
-		Vector3 right = m_Body.transform.right;
-		float xAngSpeed = Vector3.Dot (right, m_Body.angularVelocity);
+		Vector3 right = body.transform.right;
+		float xAngSpeed = Vector3.Dot (right, body.angularVelocity);
 
 		float xAngSpeedDiff = targetAngSpeed - xAngSpeed;
 		float angAcc = xAngSpeedDiff * angAccRatio;
-		float torqueMag = m_Body.inertiaTensor.x * angAcc;
+		float torqueMag = body.inertiaTensor.x * angAcc;
 		Vector3 relTorque = new Vector3(torqueMag, 0, 0);
-		m_Body.AddRelativeTorque (relTorque);
+		body.AddRelativeTorque (relTorque);
 	}
 
 	// Damping only
 	void ApplyYRotation() {
-		Vector3 up = m_Body.transform.up;
-		float upAngSpeed = Vector3.Dot (up, m_Body.angularVelocity);
+		Vector3 up = body.transform.up;
+		float upAngSpeed = Vector3.Dot (up, body.angularVelocity);
 
 		float angAcc = -upAngSpeed / Time.fixedDeltaTime;
-		float torqueMag = m_Body.inertiaTensor.y * angAcc;
+		float torqueMag = body.inertiaTensor.y * angAcc;
 		Vector3 relTorque = new Vector3(0, torqueMag, 0);
-		m_Body.AddRelativeTorque (relTorque);
+		body.AddRelativeTorque (relTorque);
 	}
 
 	void ApplySteeringForce ()
 	{
 		// Keep Y velocity zero
-		Vector3 up = m_Body.transform.up;
-		float upSpeed = Vector3.Dot (up, m_Body.velocity);
+		Vector3 up = body.transform.up;
+		float upSpeed = Vector3.Dot (up, body.velocity);
 
-		m_DebugUI.UpdateVar ("UpSpeed", upSpeed.ToString ("0.0"));
+		DebugUI.UpdateVar ("UpSpeed", upSpeed.ToString ("0.0"));
 
 		// F = m * dv/dt
-		float maxForceMag = m_Body.mass * Mathf.Abs(upSpeed)/Time.fixedDeltaTime;
+		float maxForceMag = body.mass * Mathf.Abs(upSpeed)/Time.fixedDeltaTime;
 
-		Vector3 right = m_Body.transform.right;
-		float xAngSpeed = Vector3.Dot (right, m_Body.angularVelocity);
+		Vector3 right = body.transform.right;
+		float xAngSpeed = Vector3.Dot (right, body.angularVelocity);
 
 		float dragForceMag = Mathf.Abs (upSpeed) * DRAG_COEFF;
 		float diffForceMag = Mathf.Abs(STEER_FORCE_DIFF_MULT * xAngSpeed);
@@ -269,19 +269,19 @@ public class PlayerController : MonoBehaviour {
 
 		steeringForceMag = Mathf.Min (steeringForceMag, maxForceMag);
 		Vector3 dragForce = -Mathf.Sign(upSpeed) * steeringForceMag * up;
-		m_Body.AddForce (dragForce);
+		body.AddForce (dragForce);
 	}
 
 	// Gravity towards the center of the sphere
 	private List<GameObject> sphereGravityObjects = new List<GameObject> ();
 	// Gravity in a single direction
 	private List<GameObject> directionalGravityObjects = new List<GameObject> ();
-
+	// Debug variable for number of gravity objects affecting the ship
 	private int gravCnt = 0;
 
 	void UpdateGravityObjects() {
 		// TODO: delay by one frame per player number
-		Collider[] hitColliders = Physics.OverlapSphere(m_Body.transform.position, GRAVITY_RADIUS);
+		Collider[] hitColliders = Physics.OverlapSphere(body.transform.position, GRAVITY_RADIUS);
 
 		sphereGravityObjects.Clear ();
 		// TODO: filter duplicates
@@ -303,21 +303,21 @@ public class PlayerController : MonoBehaviour {
 
 	void ApplyGravity() {
 
-		m_LandedOnPlatform = false;
+		landedOnPlatform = false;
 
 		// TODO: filter duplicates eg. GameObject with two colliders
 		foreach(GameObject obj in sphereGravityObjects) {
-			Vector3 toObj = obj.transform.position - m_Body.transform.position;
+			Vector3 toObj = obj.transform.position - body.transform.position;
 			toObj.Normalize ();
 
-			float forceMag = m_Body.mass * GRAVITY_ACC;
-			m_Body.AddForce (forceMag * toObj);
+			float forceMag = body.mass * GRAVITY_ACC;
+			body.AddForce (forceMag * toObj);
 		}
 
 		// Warning: The platform is expected to have Y up rotation
 		foreach (GameObject obj in directionalGravityObjects) {
 
-			Vector3 platformGravityArea = new Vector3 (m_PlatformCollider.size.x, PLATFORM_GRAVITY_MAX_HEIGHT*2f, m_PlatformCollider.size.z);
+			Vector3 platformGravityArea = new Vector3 (platformCollider.size.x, PLATFORM_GRAVITY_MAX_HEIGHT*2f, platformCollider.size.z);
 			float rotation = obj.transform.rotation.eulerAngles.y;
 			Vector3 rotatedArea = Quaternion.AngleAxis (rotation, Vector3.up) * platformGravityArea;
 			platformGravityArea = new Vector3 (Mathf.Abs (rotatedArea.x), rotatedArea.y, Mathf.Abs (rotatedArea.z));
@@ -333,12 +333,12 @@ public class PlayerController : MonoBehaviour {
 				return;
 			}
 
-			float platformToShip = m_Body.position.y - obj.transform.position.y;
+			float platformToShip = body.position.y - obj.transform.position.y;
 
 			if (platformToShip > 0f && platformToShip < PLATFORM_MAX_LANDING_HEIGHT) {
 				float angleBetween = Vector3.Angle (obj.transform.up, transform.up);
 				if (Mathf.Abs (angleBetween) < 45f || Mathf.Abs (angleBetween) > 135f) {
-					m_LandedOnPlatform = true;
+					landedOnPlatform = true;
 				}
 			}
 
@@ -346,17 +346,17 @@ public class PlayerController : MonoBehaviour {
 
 			Vector3 gravityDir = Vector3.down;
 
-			float forceMag = m_Body.mass * GRAVITY_ACC;
-			m_Body.AddForce (forceMag * gravityDir);
+			float forceMag = body.mass * GRAVITY_ACC;
+			body.AddForce (forceMag * gravityDir);
 		}
 	}
 
 	// Toss away from the game bounds if very close
 	// This will prevent getting stuck eg. in a corner
 	void ApplyBoundsForce() {
-		ApplyBoundsForceAxis (0, m_Body.transform.position.x);
-		ApplyBoundsForceAxis (1, m_Body.transform.position.y);
-		ApplyBoundsForceAxis (2, m_Body.transform.position.z);
+		ApplyBoundsForceAxis (0, body.transform.position.x);
+		ApplyBoundsForceAxis (1, body.transform.position.y);
+		ApplyBoundsForceAxis (2, body.transform.position.z);
 	}
 
 	private void ApplyBoundsForceAxis(int axisIndex, float position) {
@@ -375,7 +375,7 @@ public class PlayerController : MonoBehaviour {
 				throw new Exception ("Unhandled state");
 			}
 			// F = m*a
-			m_Body.AddForce (dir*BOUNDS_PUSH_MAG*m_Body.mass);
+			body.AddForce (dir*BOUNDS_PUSH_MAG*body.mass);
 		}
 	}
 }

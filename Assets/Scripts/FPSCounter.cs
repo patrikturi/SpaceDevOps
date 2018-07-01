@@ -4,26 +4,29 @@ using UnityEngine.UI;
 
 public class FPSCounter : MonoBehaviour
 {
-	public Text m_fpsText;
+	private Text textComponent;
+	private int frameCounter = 0;
+	private float timeCounter = 0.0f;
+	private float lastFramerate = 0.0f;
+	private float refreshTime = 0.5f;
 
-	int m_frameCounter = 0;
-	float m_timeCounter = 0.0f;
-	float m_lastFramerate = 0.0f;
-	float m_refreshTime = 0.5f;
+	void Awake() {
+		textComponent = GetComponent<Text> ();
+	}
 
 	void Update()
 	{
-		if( m_timeCounter < m_refreshTime )
+		if( timeCounter < refreshTime )
 		{
-			m_timeCounter += Time.deltaTime;
-			m_frameCounter++;
+			timeCounter += Time.deltaTime;
+			frameCounter++;
 		}
 		else
 		{
-			m_lastFramerate = Mathf.Round((float)m_frameCounter/m_timeCounter);
-			m_frameCounter = 0;
-			m_timeCounter = 0.0f;
-			m_fpsText.text = m_lastFramerate.ToString ();
+			lastFramerate = Mathf.Round((float)frameCounter/timeCounter);
+			frameCounter = 0;
+			timeCounter = 0.0f;
+			textComponent.text = lastFramerate.ToString ();
 		}
 	}
 }

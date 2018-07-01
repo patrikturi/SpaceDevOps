@@ -7,7 +7,7 @@ public class IntroUI : MonoBehaviour {
 
 	private const float INTRO_HELP_TIME = 10f;
 
-	void Start()
+	void Awake()
 	{
 		if (Debug.isDebugBuild) {
 			gameObject.SetActive (false);

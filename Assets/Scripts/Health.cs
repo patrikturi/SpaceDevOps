@@ -4,25 +4,26 @@ using UnityEngine;
 
 public class Health : MonoBehaviour {
 
-	public RectTransform m_HealthBar;
-	public GameObject m_ExplosionPrefab;
-	public GameObject m_HitParticlesHost;
+	public RectTransform HealthBar;
+	public GameObject ExplosionPrefab;
 
-	private float INITIAL_WIDTH;
+	private static float INITIAL_WIDTH;
 	private const int MAX_HEALTH = 100;
 	private const float EXPLOSION_LIFETIME = 4.5f;
 	private const float EXPLOSION_BURST_TIME = 0.5f;
 
-	private int m_CurrentHealth = MAX_HEALTH;
-	private ParticleSystem m_ParticleSystem;
+	private int currentHealth = MAX_HEALTH;
+	private new ParticleSystem particleSystem;
+	private GameObject hitParticlesHost;
 
 	void Awake() {
-		INITIAL_WIDTH = m_HealthBar.sizeDelta.x;
-		m_ParticleSystem = m_HitParticlesHost.GetComponent<ParticleSystem> ();
+		INITIAL_WIDTH = HealthBar.sizeDelta.x;
+		hitParticlesHost = transform.Find ("HitParticles").gameObject;
+		particleSystem = hitParticlesHost.GetComponent<ParticleSystem> ();
 	}
 
 	void OnEnable() {
-		m_HitParticlesHost.transform.parent = transform;
+		hitParticlesHost.transform.parent = transform;
 	}
 
 	public void Reset() {
@@ -33,35 +34,35 @@ public class Health : MonoBehaviour {
 		Event e = Event.current;
 
 		if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.D) {
-			takeDamage (MAX_HEALTH);
+			TakeDamage (MAX_HEALTH);
 		} else if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.X) {
-			takeDamage (20);
+			TakeDamage (20);
 		}
 	}
 
-	public void takeDamage(int amount) {
-		if (m_CurrentHealth <= 0) {
+	public void TakeDamage(int amount) {
+		if (currentHealth <= 0) {
 			return;
 		}
 
-		if (m_CurrentHealth > amount) {
-			setHealth (m_CurrentHealth - amount);
-			m_ParticleSystem.Emit (amount/10+1);
+		if (currentHealth > amount) {
+			setHealth (currentHealth - amount);
+			particleSystem.Emit (amount/10+1);
 		} else {
-			die ();
+			Die ();
 		}
 	}
 
 	private void setHealth(int health) {
-		m_CurrentHealth = health;
-		m_HealthBar.sizeDelta = new Vector2(INITIAL_WIDTH*m_CurrentHealth/MAX_HEALTH, m_HealthBar.sizeDelta.y);
+		currentHealth = health;
+		HealthBar.sizeDelta = new Vector2(INITIAL_WIDTH*currentHealth/MAX_HEALTH, HealthBar.sizeDelta.y);
 	}
 
-	private void die() {
+	private void Die() {
 		setHealth (0);
 		// Detach fire particles from the ship so they don't disappear when the ship is deactivated
-		m_HitParticlesHost.transform.parent = null;
-		GameObject explosion = (GameObject)Instantiate (m_ExplosionPrefab, transform.position + transform.forward*0.75f, transform.rotation);
+		hitParticlesHost.transform.parent = null;
+		GameObject explosion = (GameObject)Instantiate (ExplosionPrefab, transform.position + transform.forward*0.75f, transform.rotation);
 
 		Rigidbody body = GetComponent<Rigidbody> ();
 		Rigidbody expBody = explosion.GetComponent<Rigidbody> ();

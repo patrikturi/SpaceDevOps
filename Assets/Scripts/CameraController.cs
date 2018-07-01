@@ -4,70 +4,70 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-	public GameObject m_Target;
+	public GameObject Target;
 
-	private string CAMERA_BUTTON = "Camera";
+	private const string CAMERA_BUTTON = "Camera";
 	// Camera will be flipped if view hits a large object
-	private string LARGE_OBJECT_TAG = "LARGE";
-	private Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.48f, -0.88f);
-	private float POS_OFFSET_MAG_DEFAULT = 11.41f;
+	private const string LARGE_OBJECT_TAG = "LARGE";
+	private static Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.48f, -0.88f);
+	private const float POS_OFFSET_MAG_DEFAULT = 11.41f;
 	private const float POS_SMOOTHING_DURATION = 0.4f;
-	private float UP_SMOOTHING_STEP;
+	private static float UP_SMOOTHING_STEP;
 
-	private MeshRenderer m_TargetRenderer;
-	private Vector3 m_CameraUp;
+	private MeshRenderer targetRenderer;
+	private Vector3 cameraUp;
 	// Shift Y axis to negative value if current view collides with a large object
-	private int m_OffsetYAxisSign = 1;
-	private Vector3 m_Velocity = Vector3.zero;
+	private int offsetYAxisSign = 1;
+	private Vector3 velocity = Vector3.zero;
 	// false means it's Third person camera
-	private bool m_FirstPersonCamera = false;
+	private bool firstPersonCamera = false;
 
 	void Start() {
-		m_TargetRenderer = m_Target.GetComponent<MeshRenderer> ();
+		targetRenderer = Target.GetComponent<MeshRenderer> ();
 		UP_SMOOTHING_STEP = 1f * Time.fixedDeltaTime;
-		m_CameraUp = m_Target.transform.up;
+		cameraUp = Target.transform.up;
 	}
 
 	public void Reset() {
-		Transform targetTr = m_Target.transform;
+		Transform targetTr = Target.transform;
 
-		m_CameraUp = targetTr.up;
-		if (m_FirstPersonCamera) {
+		cameraUp = targetTr.up;
+		if (firstPersonCamera) {
 			transform.position = targetTr.position;
 			transform.rotation = targetTr.rotation;
 		} else {
 			Vector3 desiredPos = targetTr.position + targetTr.rotation * (POS_OFFSET_DIR * POS_OFFSET_MAG_DEFAULT);
 			transform.position = desiredPos;
-			transform.LookAt (targetTr.position, m_CameraUp);
+			transform.LookAt (targetTr.position, cameraUp);
 		}
 	}
 
 	void FixedUpdate () {
-		Transform targetTr = m_Target.transform;
+		Transform targetTr = Target.transform;
 		if (Input.GetButtonDown (CAMERA_BUTTON)) {
-			m_FirstPersonCamera = !m_FirstPersonCamera;
+			firstPersonCamera = !firstPersonCamera;
 		}
 
-		if (m_FirstPersonCamera) {
+		if (firstPersonCamera) {
 			// TODO: will need a better solution for Networked Multiplayer, see:
 			// https://answers.unity.com/questions/63261/network-restrictive-rendering.html
-			m_TargetRenderer.enabled = false;
+			targetRenderer.enabled = false;
 			transform.position = targetTr.position;
 			transform.rotation = targetTr.rotation;
-			m_CameraUp = targetTr.up; // Needed to transition smoothly into Third Person Camera
+			cameraUp = targetTr.up; // Needed to transition smoothly into Third Person Camera
 		} else {
-			updateThirdPersonCamera (targetTr);
+			UpdateThirdPersonCamera (targetTr);
 		}
 	}
 
-	private void updateThirdPersonCamera(Transform targetTr) {
-		m_TargetRenderer.enabled = true;
+	private void UpdateThirdPersonCamera(Transform targetTr) {
+		targetRenderer.enabled = true;
 
 		RaycastHit hit;
 		float posOffsetMag;
 
 		posOffsetMag = POS_OFFSET_MAG_DEFAULT;
-		m_OffsetYAxisSign = 1;
+		offsetYAxisSign = 1;
 
 		// Bring camera closer if there is a raycast hit
 		if (Physics.Raycast(targetTr.position, targetTr.rotation * POS_OFFSET_DIR, out hit, POS_OFFSET_MAG_DEFAULT)) {
@@ -86,7 +86,7 @@ public class CameraController : MonoBehaviour {
 				bool raycast2Result = Physics.Raycast (targetTr.position, proposedDirAbs, out hit, POS_OFFSET_MAG_DEFAULT);
 				if (!raycast2Result || !hit.transform.gameObject.tag.Contains (LARGE_OBJECT_TAG)) {
 					
-					m_OffsetYAxisSign = -1;
+					offsetYAxisSign = -1;
 					// Check max camera distance at the new view
 					if (raycast2Result) {
 						posOffsetMag = hit.distance;
@@ -99,16 +99,16 @@ public class CameraController : MonoBehaviour {
 		}
 
 		Vector3 offsetDir = new Vector3 (POS_OFFSET_DIR.x, POS_OFFSET_DIR.y, POS_OFFSET_DIR.z);
-		offsetDir.y *= m_OffsetYAxisSign;
+		offsetDir.y *= offsetYAxisSign;
 		Vector3 desiredPos = targetTr.position + targetTr.rotation * (offsetDir * posOffsetMag);
 
-		Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref m_Velocity, POS_SMOOTHING_DURATION,
+		Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref velocity, POS_SMOOTHING_DURATION,
 			Mathf.Infinity, Time.fixedDeltaTime);
 
 		// Must keep the camera Up vector moving otherwise the camera can 'flip' around
-		m_CameraUp = Vector3.Lerp (m_CameraUp, targetTr.up, UP_SMOOTHING_STEP);
+		cameraUp = Vector3.Lerp (cameraUp, targetTr.up, UP_SMOOTHING_STEP);
 
 		transform.position = newPos;
-		transform.LookAt (targetTr.position, m_CameraUp);
+		transform.LookAt (targetTr.position, cameraUp);
 	}
 }

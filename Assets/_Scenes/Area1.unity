@@ -580,6 +580,11 @@ GameObject:
   m_PrefabParentObject: {fileID: 1864245221659492, guid: c2d23999d74c0ba41812c710f6d57606,
     type: 2}
   m_PrefabInternal: {fileID: 1684587112}
+--- !u!20 &372924583 stripped
+Camera:
+  m_PrefabParentObject: {fileID: 20598160332870410, guid: c2d23999d74c0ba41812c710f6d57606,
+    type: 2}
+  m_PrefabInternal: {fileID: 1684587112}
 --- !u!224 &397600671 stripped
 RectTransform:
   m_PrefabParentObject: {fileID: 224073024408547338, guid: a812d4d0ba749af4cb604340b2a8f823,
@@ -708,13 +713,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc8bf8824c888284d8c4cdf35e7b411a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_fpsText: {fileID: 544746733}
---- !u!114 &544746733 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114973602878404882, guid: a43a52b81d1aa22479ceb3397b1ecf23,
-    type: 2}
-  m_PrefabInternal: {fileID: 861222853}
-  m_Script: {fileID: 708705254, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 --- !u!1 &553722476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1970,6 +1968,21 @@ Prefab:
       propertyPath: m_Name
       value: PlayerShip1
       objectReference: {fileID: 0}
+    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: DebugUI
+      value: 
+      objectReference: {fileID: 1372256408}
+    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: BoundsFront
+      value: 
+      objectReference: {fileID: 1967061237}
+    - target: {fileID: 114101853426442054, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: HealthBar
+      value: 
+      objectReference: {fileID: 867711795}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f3975c3468035484fbf233eeff67497b, type: 2}
   m_IsPrefabParent: 0
@@ -2125,9 +2138,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70c3f91fda529d149a8334fbf112f31d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_DebugPanel: {fileID: 1372256405}
-  m_HelpPanel: {fileID: 522327672}
-  m_QuitPanel: {fileID: 553722476}
+  DebugPanel: {fileID: 1372256405}
+  HelpPanel: {fileID: 522327672}
+  QuitPanel: {fileID: 553722476}
 --- !u!4 &1412237291
 Transform:
   m_ObjectHideFlags: 0
@@ -2631,6 +2644,31 @@ Prefab:
     - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
         type: 2}
       propertyPath: m_BoundsFront
+      value: 
+      objectReference: {fileID: 1967061237}
+    - target: {fileID: 114962817435819938, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Target
+      value: 
+      objectReference: {fileID: 2116578125}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: ShipTransform
+      value: 
+      objectReference: {fileID: 2116578130}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 67b9e57ce1cbdd640a519f00b102d737, type: 2}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Camera
+      value: 
+      objectReference: {fileID: 372924583}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: BoundsFront
       value: 
       objectReference: {fileID: 1967061237}
     m_RemovedComponents: []

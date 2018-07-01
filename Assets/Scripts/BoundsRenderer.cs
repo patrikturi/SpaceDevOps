@@ -5,44 +5,46 @@ using UnityEngine;
 
 public class BoundsRenderer : MonoBehaviour {
 
-	public Material material;
-	public Camera m_Camera;
-	public Transform m_ShipTransform;
-	public Transform m_BoundsFront;
-	public bool m_DebugBounds = false;
+	public Material Material;
+	public Transform BoundsFront;
+	public bool DebugBounds = false;
 
 	private const float BOUNDS_VISIBLE_RANGE = 50f;
 	private const int BOUNDS_CORE_CNT = 5;
 	private const int BOUNDS_FADE_CNT = 7;
+	private static float BOUNDS_SIZE;
 
-	private float BOUNDS_SIZE;
+	private new Camera camera;
+	private Transform shipTransform;
 
-	void Start() {
-		BOUNDS_SIZE = m_BoundsFront.localScale.x / 2f;
+	void Awake() {
+		BOUNDS_SIZE = BoundsFront.localScale.x / 2f;
+		camera = GetComponent<Camera> ();
+		shipTransform = GetComponent<CameraController> ().Target.transform;
 	}
 
 	void OnPostRender() {
 
-		Vector3 pos = m_ShipTransform.position;
+		Vector3 pos = shipTransform.position;
 
 		GL.PushMatrix();
-		GL.LoadProjectionMatrix(m_Camera.projectionMatrix);
-		material.SetPass(0);
+		GL.LoadProjectionMatrix(camera.projectionMatrix);
+		Material.SetPass(0);
 		GL.Begin(GL.LINES);
 
-		if (m_DebugBounds) {
-			renderDebugBounds ();
+		if (DebugBounds) {
+			RenderDebugBounds ();
 		}
 
-		checkRenderBounds (0, pos.x, pos.y, pos.z);
-		checkRenderBounds (1, pos.y, pos.x, pos.z);
-		checkRenderBounds (2, pos.z, pos.x, pos.y);
+		CheckRenderBounds (0, pos.x, pos.y, pos.z);
+		CheckRenderBounds (1, pos.y, pos.x, pos.z);
+		CheckRenderBounds (2, pos.z, pos.x, pos.y);
 
 		GL.End();
 		GL.PopMatrix();
 	}
 
-	private void renderDebugBounds() {
+	private void RenderDebugBounds() {
 		GL.Color(Color.yellow);
 		GL.Vertex (new Vector3 (-BOUNDS_SIZE, -BOUNDS_SIZE, -BOUNDS_SIZE));
 		GL.Vertex (new Vector3 (BOUNDS_SIZE, -BOUNDS_SIZE, -BOUNDS_SIZE));
@@ -70,27 +72,27 @@ public class BoundsRenderer : MonoBehaviour {
 		GL.Vertex (new Vector3 (-BOUNDS_SIZE, BOUNDS_SIZE, -BOUNDS_SIZE));
 	}
 
-	private void checkRenderBounds(int zIndex, float vx, float vy, float vz) {
+	private void CheckRenderBounds(int zIndex, float vx, float vy, float vz) {
 		if (BOUNDS_SIZE - Mathf.Abs (vx) > BOUNDS_VISIBLE_RANGE) {
 			return;
 		}
 		int dir = vx >= 0 ? 1 : -1;
-		renderBounds (zIndex, vy, vz, dir, BOUNDS_SIZE);
+		RenderBounds (zIndex, vy, vz, dir, BOUNDS_SIZE);
 	}
 
-	private void renderBounds(int zIndex, float xCenter, float yCenter, int dir, float bounds) {
+	private void RenderBounds(int zIndex, float xCenter, float yCenter, int dir, float bounds) {
 		for (int i = 1; i <= BOUNDS_CORE_CNT; i++) {
 			GL.Color(Color.yellow);
-			renderSquare (zIndex, xCenter, yCenter, dir * bounds, i, bounds);
+			RenderSquare (zIndex, xCenter, yCenter, dir * bounds, i, bounds);
 		}
 
 		for (int i = 1; i <= BOUNDS_FADE_CNT; i++) {
 			GL.Color(new Color(1f, 1f, 0, 1f/BOUNDS_FADE_CNT*(BOUNDS_FADE_CNT-i)));
-			renderSquare (zIndex, xCenter, yCenter, dir * bounds, BOUNDS_CORE_CNT + i, bounds);
+			RenderSquare (zIndex, xCenter, yCenter, dir * bounds, BOUNDS_CORE_CNT + i, bounds);
 		}
 	}
 
-	private void renderSquare(int zIndex, float xCenter, float yCenter, float zCenter, float size, float bounds) {
+	private void RenderSquare(int zIndex, float xCenter, float yCenter, float zCenter, float size, float bounds) {
 		float xL = Mathf.Max (-bounds, xCenter - size);
 		float yL = Mathf.Max (-bounds, yCenter - size);
 		float xH = Mathf.Min (bounds, xCenter + size);

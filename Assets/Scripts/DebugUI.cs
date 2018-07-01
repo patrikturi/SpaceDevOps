@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class DebugUI : MonoBehaviour {
 
-	public GameObject m_NamePrefab;
-	public GameObject m_ValuePrefab;
+	public GameObject NamePrefab;
+	public GameObject ValuePrefab;
 
 	private Dictionary<string, Text> values = new Dictionary<string, Text>();
 
@@ -24,13 +24,13 @@ public class DebugUI : MonoBehaviour {
 		if (!Debug.isDebugBuild) {
 			return;
 		}
-		GameObject nameObject = (GameObject)Instantiate (m_NamePrefab);
+		GameObject nameObject = (GameObject)Instantiate (NamePrefab);
 		Text nameText = nameObject.GetComponent<Text> ();
 		nameText.text = name;
 		nameText.transform.SetParent (transform);
 		nameText.transform.SetSiblingIndex (0); // Add to the end of the layout
 
-		GameObject valueObject = (GameObject)Instantiate (m_NamePrefab);
+		GameObject valueObject = (GameObject)Instantiate (NamePrefab);
 		Text valueText = valueObject.GetComponent<Text> ();
 		valueText.text = "";
 		valueText.transform.SetParent (transform);
@@ -39,7 +39,7 @@ public class DebugUI : MonoBehaviour {
 		values.Add (name, valueText);
 	}
 
-	public Text getText(string name) {
+	public Text GetText(string name) {
 		if (!Debug.isDebugBuild) {
 			return null;
 		}
