@@ -5,10 +5,19 @@ using UnityEngine.UI;
 
 public class DebugUI : MonoBehaviour {
 
+	public static DebugUI Instance;
 	public GameObject NamePrefab;
 	public GameObject ValuePrefab;
 
 	private Dictionary<string, Text> values = new Dictionary<string, Text>();
+
+	void Awake() {
+		if (Instance == null) {
+			Instance = this;
+		} else if(Instance != this){
+			Destroy (this);
+		}
+	}
 
 	public void UpdateVar(string name, string value) {
 		if (!Debug.isDebugBuild) {

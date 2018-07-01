@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	public DebugUI DebugUI;
 	public Transform BoundsFront;
 	public GameObject PlatformPrefab;
 
@@ -50,6 +49,7 @@ public class PlayerController : MonoBehaviour {
 	private float fwdInput;
 	private float orthoInput;
 
+	private DebugUI debugUI;
 	private Rigidbody body;
 
 	private PController fwdMotor;
@@ -89,6 +89,10 @@ public class PlayerController : MonoBehaviour {
 		PLATFORM_MAX_LANDING_HEIGHT = platformSize + shipSize + maxLandedOffset;
 	}
 
+	void Start() {
+		debugUI = DebugUI.Instance;
+	}
+
 	void FixedUpdate()
 	{
 		thrustInput = Input.GetAxis (THRUST_AXIS);
@@ -107,7 +111,7 @@ public class PlayerController : MonoBehaviour {
 		}
 		gravCnt = sphereGravityObjects.Count;
 		ApplyGravity ();
-		DebugUI.UpdateVar ("Grav", gravCnt.ToString());
+		debugUI.UpdateVar ("Grav", gravCnt.ToString());
 		ApplyBoundsForce ();
 
 		ApplyRotation ();
@@ -121,7 +125,7 @@ public class PlayerController : MonoBehaviour {
 		bool engineOn = IsEngineOn ();
 		Vector3 fwd = body.transform.forward;
 		float fwdSpeed = Vector3.Dot (fwd, body.velocity);
-		DebugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
+		debugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
 
 		PController controller;
 		if (engineOn || landedOnPlatform) {
@@ -254,7 +258,7 @@ public class PlayerController : MonoBehaviour {
 		Vector3 up = body.transform.up;
 		float upSpeed = Vector3.Dot (up, body.velocity);
 
-		DebugUI.UpdateVar ("UpSpeed", upSpeed.ToString ("0.0"));
+		debugUI.UpdateVar ("UpSpeed", upSpeed.ToString ("0.0"));
 
 		// F = m * dv/dt
 		float maxForceMag = body.mass * Mathf.Abs(upSpeed)/Time.fixedDeltaTime;

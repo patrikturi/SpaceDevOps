@@ -214,6 +214,16 @@ Prefab:
       propertyPath: m_HealthBar
       value: 
       objectReference: {fileID: 445430914}
+    - target: {fileID: 114101853426442054, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: HealthBar
+      value: 
+      objectReference: {fileID: 445430914}
+    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: BoundsFront
+      value: 
+      objectReference: {fileID: 334748512}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f3975c3468035484fbf233eeff67497b, type: 2}
   m_IsPrefabParent: 0
@@ -455,6 +465,11 @@ Prefab:
       propertyPath: m_HealthBar
       value: 
       objectReference: {fileID: 445430914}
+    - target: {fileID: 114101853426442054, guid: f3975c3468035484fbf233eeff67497b,
+        type: 2}
+      propertyPath: HealthBar
+      value: 
+      objectReference: {fileID: 445430914}
     m_RemovedComponents:
     - {fileID: 114025221995569914, guid: f3975c3468035484fbf233eeff67497b, type: 2}
     - {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b, type: 2}
@@ -622,6 +637,10 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1008634742698550, guid: f672be8169fc9164d83667f3a03e375f, type: 2}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f672be8169fc9164d83667f3a03e375f, type: 2}
   m_IsPrefabParent: 0
@@ -752,6 +771,21 @@ Prefab:
       propertyPath: m_Target
       value: 
       objectReference: {fileID: 742430700}
+    - target: {fileID: 114962817435819938, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Target
+      value: 
+      objectReference: {fileID: 742430700}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 67b9e57ce1cbdd640a519f00b102d737, type: 2}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: BoundsFront
+      value: 
+      objectReference: {fileID: 334748512}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c2d23999d74c0ba41812c710f6d57606, type: 2}
   m_IsPrefabParent: 0

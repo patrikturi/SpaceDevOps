@@ -10,6 +10,9 @@ public class UIManager : MonoBehaviour {
 
 	void Awake () {
 		Cursor.visible = false;
+	}
+
+	void Start() {
 		DebugPanel.SetActive (Debug.isDebugBuild);
 	}
 
