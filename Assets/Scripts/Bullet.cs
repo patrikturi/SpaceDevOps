@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour {
 
+	// The firing player
+	public GameObject Player;
+
 	private const int BULLET_DAMAGE = 20;
 
 	void OnTriggerEnter(Collider other) {
@@ -17,12 +20,13 @@ public class Bullet : MonoBehaviour {
 		if(health == null && hitObject.name.Contains("Wing")) {
 			Transform parent = hitObject.transform.parent;
 			if (parent != null) {
-				GameObject parentObject = parent.gameObject;
-				health = parentObject.GetComponent<Health> ();
+				hitObject = parent.gameObject;
+				health = hitObject.GetComponent<Health> ();
 			}
 		}
 
-		if (health != null) {
+		// Prevent shooting self
+		if (health != null && hitObject != Player) {
 			health.TakeDamage (BULLET_DAMAGE);
 		}
 

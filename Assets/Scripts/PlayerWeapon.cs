@@ -15,11 +15,17 @@ public class PlayerWeapon : MonoBehaviour {
 
 	private Transform bulletSpawnRight;
 	private Transform bulletSpawnLeft;
+	private Quaternion bulletRotationRight;
+	private Quaternion bulletRotationLeft;
 	private float fireEnabledTimeStamp = -1f;
 
 	void Awake() {
 		bulletSpawnRight = transform.Find ("BulletSpawnRight").transform;
 		bulletSpawnLeft = transform.Find ("BulletSpawnLeft").transform;
+		float rotYRight = bulletSpawnRight.transform.localRotation.eulerAngles.y;
+		float rotYLeft = bulletSpawnLeft.transform.localRotation.eulerAngles.y;
+		bulletRotationRight = Quaternion.AngleAxis (rotYRight, Vector3.up);
+		bulletRotationLeft = Quaternion.AngleAxis (rotYLeft, Vector3.up);
 	}
 
 	// Update is called once per frame
@@ -33,15 +39,18 @@ public class PlayerWeapon : MonoBehaviour {
 	}
 
 	private void FireAll() {
-		FireSingle (bulletSpawnRight);
-		FireSingle (bulletSpawnLeft);
+		Vector3 angles = bulletSpawnRight.transform.localRotation.eulerAngles;
+		FireSingle (bulletSpawnRight, bulletRotationRight);
+		FireSingle (bulletSpawnLeft,  bulletRotationLeft);
 	}
 
-	private void FireSingle(Transform spawn) {
-		var bullet = (GameObject)Instantiate (BulletPrefab, spawn.position, spawn.rotation);
-		bullet.GetComponent<Rigidbody> ().velocity = transform.forward * BULLET_SPEED;
-		bullet.layer = BULLET_LAYER;
+	private void FireSingle(Transform spawn, Quaternion velocityRotation) {
+		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawn.position, spawn.rotation);
+		bulletObject.GetComponent<Rigidbody> ().velocity = velocityRotation * transform.forward * BULLET_SPEED;
+		bulletObject.layer = BULLET_LAYER;
+		var bulletScript = bulletObject.GetComponent<Bullet> ();
+		bulletScript.Player = gameObject;
 
-		Destroy (bullet, BULLET_DURATION);
+		Destroy (bulletObject, BULLET_DURATION);
 	}
 }
