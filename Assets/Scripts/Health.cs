@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Health : MonoBehaviour {
 
-	public RectTransform HealthBar;
 	public GameObject ExplosionPrefab;
 
 	private static float INITIAL_WIDTH;
@@ -13,13 +12,18 @@ public class Health : MonoBehaviour {
 	private const float EXPLOSION_BURST_TIME = 0.5f;
 
 	private int currentHealth = MAX_HEALTH;
+	private RectTransform healthBar;
 	private new ParticleSystem particleSystem;
 	private GameObject hitParticlesHost;
 
 	void Awake() {
-		INITIAL_WIDTH = HealthBar.sizeDelta.x;
 		hitParticlesHost = transform.Find ("HitParticles").gameObject;
 		particleSystem = hitParticlesHost.GetComponent<ParticleSystem> ();
+	}
+
+	void Start() {
+		healthBar = SceneManager.Instance.HealthBar;
+		INITIAL_WIDTH = healthBar.sizeDelta.x;
 	}
 
 	void OnEnable() {
@@ -55,7 +59,7 @@ public class Health : MonoBehaviour {
 
 	private void setHealth(int health) {
 		currentHealth = health;
-		HealthBar.sizeDelta = new Vector2(INITIAL_WIDTH*currentHealth/MAX_HEALTH, HealthBar.sizeDelta.y);
+		healthBar.sizeDelta = new Vector2(INITIAL_WIDTH*currentHealth/MAX_HEALTH, healthBar.sizeDelta.y);
 	}
 
 	private void Die() {

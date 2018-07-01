@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
-	public Transform BoundsFront;
 	public GameObject PlatformPrefab;
 
 	private const string THRUST_AXIS = "Thrust";
@@ -44,6 +43,8 @@ public class PlayerController : MonoBehaviour {
 	private static int SCAN_FRAME_SKIP;
 	private int scan_cur_frame = 0;
 
+	private Transform boundsFront;
+
 	private float thrustInput;
 	private float brakeInput;
 	private float fwdInput;
@@ -78,7 +79,6 @@ public class PlayerController : MonoBehaviour {
 		fwdDamping = new PController (FWD_DAMPING_RATIO);
 		fwdDamping.SetMinOutput(MIN_FWD_DAMPING);
 
-		BOUNDS_SIZE = BoundsFront.localScale.x / 2f;
 
 		platformCollider = PlatformPrefab.GetComponent<BoxCollider> ();
 
@@ -91,6 +91,8 @@ public class PlayerController : MonoBehaviour {
 
 	void Start() {
 		debugUI = DebugUI.Instance;
+		boundsFront = SceneManager.Instance.BoundsFront;
+		BOUNDS_SIZE = boundsFront.localScale.x / 2f;
 	}
 
 	void FixedUpdate()
