@@ -1868,40 +1868,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: m_DebugUI
-      value: 
-      objectReference: {fileID: 1372256408}
-    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: m_BoundsFront
-      value: 
-      objectReference: {fileID: 1967061237}
-    - target: {fileID: 114101853426442054, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: m_HealthBar
-      value: 
-      objectReference: {fileID: 867711795}
     - target: {fileID: 1153658112365776, guid: f3975c3468035484fbf233eeff67497b, type: 2}
       propertyPath: m_Name
       value: PlayerShip1
       objectReference: {fileID: 0}
-    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: DebugUI
-      value: 
-      objectReference: {fileID: 1372256408}
-    - target: {fileID: 114579039339113708, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: BoundsFront
-      value: 
-      objectReference: {fileID: 1967061237}
-    - target: {fileID: 114101853426442054, guid: f3975c3468035484fbf233eeff67497b,
-        type: 2}
-      propertyPath: HealthBar
-      value: 
-      objectReference: {fileID: 867711795}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f3975c3468035484fbf233eeff67497b, type: 2}
   m_IsPrefabParent: 0
@@ -1915,12 +1885,6 @@ RectTransform:
   m_PrefabParentObject: {fileID: 224045797478064796, guid: f672be8169fc9164d83667f3a03e375f,
     type: 2}
   m_PrefabInternal: {fileID: 1451012398}
---- !u!114 &1372256408 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 114676583898785362, guid: f672be8169fc9164d83667f3a03e375f,
-    type: 2}
-  m_PrefabInternal: {fileID: 1451012398}
-  m_Script: {fileID: 11500000, guid: 9440f479e0f20454592e93246a6df442, type: 3}
 --- !u!1 &1395675758
 GameObject:
   m_ObjectHideFlags: 0

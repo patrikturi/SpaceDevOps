@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Health : MonoBehaviour {
 
-	public GameObject ExplosionPrefab;
-
 	private static float INITIAL_WIDTH;
 	private const int MAX_HEALTH = 100;
 	private const float EXPLOSION_LIFETIME = 4.5f;
@@ -13,12 +11,16 @@ public class Health : MonoBehaviour {
 
 	private int currentHealth = MAX_HEALTH;
 	private RectTransform healthBar;
-	private new ParticleSystem particleSystem;
-	private GameObject hitParticlesHost;
+	private GameObject fire;
+	private GameObject explosion;
+	private ParticleSystem fireParticles;
+	private ParticleSystem explosionParticles;
 
 	void Awake() {
-		hitParticlesHost = transform.Find ("HitParticles").gameObject;
-		particleSystem = hitParticlesHost.GetComponent<ParticleSystem> ();
+		fire = transform.Find ("Fire").gameObject;
+		explosion = transform.Find ("Explosion").gameObject;
+		fireParticles = fire.GetComponent<ParticleSystem> ();
+		explosionParticles = explosion.GetComponent<ParticleSystem> ();
 	}
 
 	void Start() {
@@ -27,7 +29,12 @@ public class Health : MonoBehaviour {
 	}
 
 	void OnEnable() {
-		hitParticlesHost.transform.parent = transform;
+		fire.transform.parent = transform;
+		fire.transform.localPosition = Vector3.zero;
+		fire.transform.localRotation = Quaternion.identity;
+		explosion.transform.parent = transform;
+		explosion.transform.localPosition = Vector3.zero;
+		explosion.transform.localRotation = Quaternion.identity;
 	}
 
 	public void Reset() {
@@ -51,7 +58,7 @@ public class Health : MonoBehaviour {
 
 		if (currentHealth > amount) {
 			setHealth (currentHealth - amount);
-			particleSystem.Emit (amount/10+1);
+			fireParticles.Emit (amount/10+1);
 		} else {
 			Die ();
 		}
@@ -65,14 +72,16 @@ public class Health : MonoBehaviour {
 	private void Die() {
 		setHealth (0);
 		// Detach fire particles from the ship so they don't disappear when the ship is deactivated
-		hitParticlesHost.transform.parent = null;
-		GameObject explosion = (GameObject)Instantiate (ExplosionPrefab, transform.position + transform.forward*0.75f, transform.rotation);
+		fire.transform.parent = null;
+		explosion.transform.parent = null;
+
+		explosionParticles.transform.position = transform.position + transform.forward * 0.75f;
 
 		Rigidbody body = GetComponent<Rigidbody> ();
-		Rigidbody expBody = explosion.GetComponent<Rigidbody> ();
+		Rigidbody expBody = explosionParticles.GetComponent<Rigidbody> ();
 		expBody.velocity = body.velocity;
 
-		Destroy (explosion, EXPLOSION_LIFETIME);
+		explosionParticles.Play ();
 
 		Invoke ("SetInactive", EXPLOSION_BURST_TIME-0.2f);
 	}
