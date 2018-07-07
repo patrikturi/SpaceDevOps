@@ -87,8 +87,10 @@ public class SceneManager : MonoBehaviour {
 			float angleVar = Random.Range (0.2f, 0.8f);
 			rot = Quaternion.AngleAxis (360f/ cnt * (i+startPhase+angleVar), Vector3.up);
 			Vector3 pos = rot * vector + offset;
-			float offsetVar = Random.Range (-offsetVarMax, offsetVarMax);
-			pos.y += offsetVar;
+			float offsetVarX = Random.Range (-offsetVarMax*4, offsetVarMax*4);
+			float offsetVarY = Random.Range (-offsetVarMax, offsetVarMax);
+			float offsetVarZ = Random.Range (-offsetVarMax*4, offsetVarMax*4);
+			pos += new Vector3 (offsetVarX, offsetVarY, offsetVarZ);
 			Instantiate (PlanetPrefab, pos, Quaternion.identity, planetsParent);
 		}
 	}
