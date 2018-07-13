@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4181135161174614}
   - component: {fileID: 65122246670448770}
   m_Layer: 0
-  m_Name: platform
+  m_Name: Platform
   m_TagString: DIR_GRAVITY LARGE
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

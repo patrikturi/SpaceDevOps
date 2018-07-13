@@ -686,7 +686,7 @@ MonoBehaviour:
   BoundsFront: {fileID: 334748512}
   PlatformPrefab: {fileID: 1015716511143344, guid: dc370c34a7e771e4ba3181d13b8ec1c6,
     type: 2}
-  PlanetPrefab: {fileID: 1027872616878936, guid: f397e9848ce56664a9e5312a839d0174,
+  PlanetPrefab: {fileID: 1633682996953980, guid: 64e4584319ab5934bbb008d6a8ddbdca,
     type: 2}
 --- !u!4 &1605828256
 Transform:
