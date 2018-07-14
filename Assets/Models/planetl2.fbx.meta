@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 695e614d1244f6049ba87b4847a3cba8
+guid: d4db874d6aaab2141a7ab6fed7865c53
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
@@ -9,12 +9,9 @@ ModelImporter:
     400000: Lamp
     400002: //RootNode
     400004: Sphere
-    2100000: Material.002
-    2100002: Material.001
+    2100000: Material.001
     2300000: Sphere
-    2300002: //RootNode
     3300000: Sphere
-    3300002: //RootNode
     4300000: Sphere
     10800000: Lamp
   externalObjects: {}

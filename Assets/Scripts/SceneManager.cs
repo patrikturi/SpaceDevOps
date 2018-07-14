@@ -20,7 +20,9 @@ public class SceneManager : MonoBehaviour {
 	}
 	private float boundsSize;
 	private const int PLATFORM_CNT = 16;
-	private const int PLANET_CNT = 48;
+	private const int PLANET_CNT = 16;
+	private const float PLANET_SIZE_VAR_MIN = 0.7f;
+	private const float PLANET_SIZE_VAR_MAX = 1.5f;
 
 	void Awake() {
 		if (Instance == null) {
@@ -54,18 +56,19 @@ public class SceneManager : MonoBehaviour {
 
 		int planetDiv = 6;
 		float planetsSpace = BOUNDS_SIZE / 6f;
+		float variationRatio = 0.6f;
 		offset = new Vector3 (0, planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 		offset = new Vector3 (0, 3*planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 		offset = new Vector3 (0, 5*planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 		offset = new Vector3 (0, -planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 		offset = new Vector3 (0, -3*planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 		offset = new Vector3 (0, -5*planetsSpace, 0);
-		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*0.75f);
+		SpawnPlanets (planetDiv, 0f, offset, planetsSpace*variationRatio);
 	}
 
 	private void SpawnPlatforms(int div, float startPhase, Vector3 offset) {
@@ -91,7 +94,12 @@ public class SceneManager : MonoBehaviour {
 			float offsetVarY = Random.Range (-offsetVarMax, offsetVarMax);
 			float offsetVarZ = Random.Range (-offsetVarMax*4, offsetVarMax*4);
 			pos += new Vector3 (offsetVarX, offsetVarY, offsetVarZ);
-			Instantiate (PlanetPrefab, pos, Quaternion.identity, planetsParent);
+			float xRot = Random.Range (0f, 360f);
+			float yRot = Random.Range (0f, 360f);
+			float zRot = Random.Range (0f, 360f);
+			GameObject planet = Instantiate (PlanetPrefab, pos, Quaternion.Euler(xRot, yRot,zRot), planetsParent);
+			float size = Random.Range (PLANET_SIZE_VAR_MIN, PLANET_SIZE_VAR_MAX);
+			planet.transform.localScale = new Vector3 (size, size, size);
 		}
 	}
 }
