@@ -44,9 +44,11 @@ public class PlayerWeapon : MonoBehaviour {
 		FireSingle (bulletSpawnLeft,  bulletRotationLeft);
 	}
 
-	private void FireSingle(Transform spawn, Quaternion velocityRotation) {
-		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawn.position, spawn.rotation);
-		bulletObject.GetComponent<Rigidbody> ().velocity = velocityRotation * transform.forward * BULLET_SPEED;
+	private void FireSingle(Transform spawn, Quaternion yRotation) {
+		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawn.position, transform.rotation * spawn.localRotation);
+
+		Rigidbody body = bulletObject.GetComponent<Rigidbody> ();
+		body.velocity = yRotation * transform.forward * BULLET_SPEED;
 		bulletObject.layer = BULLET_LAYER;
 		var bulletScript = bulletObject.GetComponent<Bullet> ();
 		bulletScript.Player = gameObject;
