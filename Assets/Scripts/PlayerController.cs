@@ -32,7 +32,9 @@ public class PlayerController : MonoBehaviour {
 	private static float STEER_FORCE_DIFF_MULT;
 	private static float ORTHO_FORCE_DIFF_MULT;
 
+	private static float GRAVITY_QUERY_RANGE;
 	private const float GRAVITY_RADIUS = 75.0f;
+	private const float MIN_GRAVITY_RADIUS = 50f;
 	private static float DRAG_COEFF;
 	private const float GRAVITY_ACC = 7.5f;
 
@@ -60,12 +62,13 @@ public class PlayerController : MonoBehaviour {
 	private const float BOUNDS_PUSH_RANGE = 10f;
 	private const float BOUNDS_PUSH_MAG = 5f;
 
-	private const float PLATFORM_GRAVITY_MAX_HEIGHT = 25f;
-	private const float PLATFORM_GRAVITY_MIN_HEIGHT = -10f;
+	private const float PLATFORM_GRAVITY_MAX_HEIGHT = 35f;
+	private const float PLATFORM_GRAVITY_MIN_HEIGHT = -25f;
 	// Max height from the platform to the ship when the ship is still considered as landed
-	private static float PLATFORM_MAX_LANDING_HEIGHT;
+	private static float MAX_LANDING_OFFSET = 0.5f;
+	private static float MAX_PLATFORM_LANDING_HEIGHT;
 	private BoxCollider platformCollider;
-	private bool landedOnPlatform = false;
+	private bool landed = false;
 
 	void Awake() {
 		body = GetComponent<Rigidbody> ();
@@ -85,14 +88,14 @@ public class PlayerController : MonoBehaviour {
 		float platformSize = platformCollider.size.y * PlatformPrefab.transform.localScale.y / 2f;
 		CapsuleCollider shipCollider = GetComponent<CapsuleCollider> ();
 		float shipSize = shipCollider.height * shipCollider.transform.localScale.y / 2f;
-		float maxLandedOffset = 0.5f;
-		PLATFORM_MAX_LANDING_HEIGHT = platformSize + shipSize + maxLandedOffset;
+		MAX_PLATFORM_LANDING_HEIGHT = platformSize + shipSize + MAX_LANDING_OFFSET;
 	}
 
 	void Start() {
 		debugUI = DebugUI.Instance;
 		boundsFront = SceneManager.Instance.BoundsFront;
 		BOUNDS_SIZE = boundsFront.localScale.x / 2f;
+		GRAVITY_QUERY_RANGE = SceneManager.Instance.PLANET_MAX_SIZE + GRAVITY_RADIUS * SceneManager.PLANET_SIZE_VAR_MAX;
 	}
 
 	void FixedUpdate()
@@ -111,7 +114,7 @@ public class PlayerController : MonoBehaviour {
 			UpdateGravityObjects();
 			scan_cur_frame = 0;
 		}
-		gravCnt = sphereGravityObjects.Count;
+		gravCnt = 0;
 		ApplyGravity ();
 		debugUI.UpdateVar ("Grav", gravCnt.ToString());
 		ApplyBoundsForce ();
@@ -130,7 +133,7 @@ public class PlayerController : MonoBehaviour {
 		debugUI.UpdateVar (SPEED_UI_KEY, fwdSpeed.ToString ("0.0"));
 
 		PController controller;
-		if (engineOn || landedOnPlatform) {
+		if (engineOn || landed) {
 			controller = fwdMotor;
 
 			// Braking or (landed and no controls)
@@ -227,7 +230,7 @@ public class PlayerController : MonoBehaviour {
 
 			// Increase steering strength when landed: otherwise the ship
 			// is unable to take off from a platform
-			angAccRatio = landedOnPlatform ? STEER_LANDED_ANG_ACC_RATIO : STEER_ANG_ACC_RATIO;
+			angAccRatio = landed ? STEER_LANDED_ANG_ACC_RATIO : STEER_ANG_ACC_RATIO;
 		} else {
 			targetAngSpeed = 0f;
 			angAccRatio = STEER_ANG_DECC_RATIO;
@@ -287,7 +290,7 @@ public class PlayerController : MonoBehaviour {
 
 	void UpdateGravityObjects() {
 		// TODO: delay by one frame per player number
-		Collider[] hitColliders = Physics.OverlapSphere(body.transform.position, GRAVITY_RADIUS);
+		Collider[] hitColliders = Physics.OverlapSphere(body.transform.position, GRAVITY_QUERY_RANGE);
 
 		sphereGravityObjects.Clear ();
 		// TODO: filter duplicates
@@ -309,16 +312,8 @@ public class PlayerController : MonoBehaviour {
 
 	void ApplyGravity() {
 
-		landedOnPlatform = false;
-
-		// TODO: filter duplicates eg. GameObject with two colliders
-		foreach(GameObject obj in sphereGravityObjects) {
-			Vector3 toObj = obj.transform.position - body.transform.position;
-			toObj.Normalize ();
-
-			float forceMag = body.mass * GRAVITY_ACC;
-			body.AddForce (forceMag * toObj);
-		}
+		bool hasPlatformGravity = false;
+		landed = false;
 
 		// Warning: The platform is expected to have Y up rotation
 		foreach (GameObject obj in directionalGravityObjects) {
@@ -331,30 +326,61 @@ public class PlayerController : MonoBehaviour {
 			Bounds platformBounds = new Bounds(obj.transform.position, platformGravityArea);
 
 			if (!platformBounds.Contains (transform.position)) {
-				return;
+				continue;
 			}
 
 			float height = transform.position.y - obj.transform.position.y;
 			if (height < PLATFORM_GRAVITY_MIN_HEIGHT) {
-				return;
+				continue;
 			}
 
 			float platformToShip = body.position.y - obj.transform.position.y;
 
-			if (platformToShip > 0f && platformToShip < PLATFORM_MAX_LANDING_HEIGHT) {
-				float angleBetween = Vector3.Angle (obj.transform.up, transform.up);
-				if (Mathf.Abs (angleBetween) < 45f || Mathf.Abs (angleBetween) > 135f) {
-					landedOnPlatform = true;
-				}
+			if (platformToShip > 0f && platformToShip < MAX_PLATFORM_LANDING_HEIGHT) {
+				landed = true;
 			}
 
 			gravCnt++;
+			hasPlatformGravity = true;
 
 			Vector3 gravityDir = Vector3.down;
 
 			float forceMag = body.mass * GRAVITY_ACC;
 			body.AddForce (forceMag * gravityDir);
 		}
+
+		// Do not apply planet gravity when above a platform
+		if (hasPlatformGravity) {
+			return;
+		}
+
+		foreach(GameObject obj in sphereGravityObjects) {
+			Vector3 toObj = obj.transform.position - body.transform.position;
+			float planetToShip = toObj.magnitude;
+			float planetSize = getPlanetSize(obj);
+
+			float gravityRadius = GRAVITY_RADIUS * obj.transform.localScale.x;
+			gravityRadius = Mathf.Max (gravityRadius, MIN_GRAVITY_RADIUS);
+			if (planetToShip > planetSize + gravityRadius) {
+				continue;
+			}
+
+			gravCnt++;
+
+			toObj.Normalize ();
+
+			float forceMag = body.mass * GRAVITY_ACC;
+			body.AddForce (forceMag * toObj);
+
+			if (planetToShip < planetSize + MAX_LANDING_OFFSET) {
+				landed = true;
+			}
+		}
+	}
+
+	private float getPlanetSize(GameObject planet) {
+		// x,y,z scale are expected to be equal
+		return SceneManager.Instance.PLANET_COLLIDER_SIZE * planet.transform.localScale.x;
 	}
 
 	// Toss away from the game bounds if very close

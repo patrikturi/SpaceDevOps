@@ -18,20 +18,35 @@ public class SceneManager : MonoBehaviour {
 			return boundsSize;
 		}
 	}
-	private float boundsSize;
+	public float PLANET_COLLIDER_SIZE {
+		get {
+			return planetColliderSize;
+		}
+	}
+	public float PLANET_MAX_SIZE {
+		get {
+			return planetColliderSize * PLANET_SIZE_VAR_MAX;
+		}
+	}
+	private float boundsSize = -1f;
+	private float planetColliderSize = -1f;
 	private const int PLATFORM_CNT = 16;
 	private const int PLANET_CNT = 16;
 	private const float PLANET_SIZE_VAR_MIN = 0.7f;
-	private const float PLANET_SIZE_VAR_MAX = 1.5f;
+	public const float PLANET_SIZE_VAR_MAX = 1.5f;
 
 	void Awake() {
 		if (Instance == null) {
 			Instance = this;
-		} else if(Instance != this){
+		} else if(Instance != this) {
 			Destroy (this);
 		}
 
 		boundsSize = BoundsFront.localScale.x / 2f;
+
+		SphereCollider planetCollider = PlanetPrefab.GetComponent<SphereCollider> ();
+		planetColliderSize = planetCollider.radius;
+
 		GameObject platforms = new GameObject ();
 		platforms.name = "Platforms";
 		platformsParent = platforms.transform;
