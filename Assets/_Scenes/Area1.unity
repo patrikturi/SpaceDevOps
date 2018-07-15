@@ -492,7 +492,7 @@ Prefab:
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
       propertyPath: m_Text
-      value: SPACE
+      value: SPACE <color=#ffffffff>or</color> F
       objectReference: {fileID: 0}
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
@@ -1686,7 +1686,7 @@ Prefab:
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
       propertyPath: m_Text
-      value: SHIFT
+      value: W
       objectReference: {fileID: 0}
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
@@ -2291,7 +2291,7 @@ Prefab:
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
       propertyPath: m_Text
-      value: W/A/S/D <color=#ffffffff>or</color> arrows
+      value: arrows
       objectReference: {fileID: 0}
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
@@ -2995,7 +2995,7 @@ Prefab:
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
       propertyPath: m_Text
-      value: CTRL
+      value: S
       objectReference: {fileID: 0}
     - target: {fileID: 114973602878404882, guid: a812d4d0ba749af4cb604340b2a8f823,
         type: 2}
