@@ -36,7 +36,7 @@ class PController
 		hasMax = false;
 	}
 
-	protected float ApplyLimits(float outValue) {
+	public float ApplyLimits(float outValue) {
 		if (hasMin) {
 			if (outValue < 0f) {
 				outValue = Mathf.Min (outValue, -min);

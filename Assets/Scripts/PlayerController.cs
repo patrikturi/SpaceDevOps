@@ -9,14 +9,21 @@ public class PlayerController : MonoBehaviour {
 
 	private const string THRUST_AXIS = "Thrust";
 	private const string BRAKE_AXIS = "Brake";
-	private const string FWD_AXIS = "Vertical";
-	private const string ORTHO_AXIS = "Horizontal";
+	private const string VERTICAL_AXIS = "Vertical";
+	private const string HORIZONTAL_AXIS = "Horizontal";
+	private const string SIDE_AXIS = "Side";
 
 	private const float MAX_SPEED = 25;
 	private const float FWD_ACC_RATIO = 0.75f;
 	private const float MIN_FWD_DECC = 1.5f;
 	private const float FWD_DAMPING_RATIO = 0.075f;
 	private const float MIN_FWD_DAMPING = 0.75f;
+	private const float MAX_ORTHO_SPEED = 12.5f;
+	private const float ORTHO_ACC_RATIO = 0.4f;
+	private const float MAX_ORTHO_ACC = MAX_ORTHO_SPEED * ORTHO_ACC_RATIO * 1.25f;
+	private const float ORTHO_DAMPING_RATIO = 0.075f;
+	private const float MIN_ORTHO_DAMPING = 0.75f;
+	private const float ORTHO_SCALE_DOWN_SPEED = 0.6f * MAX_SPEED;
 
 	private const float MAX_ROT_ANG_SPEED = 2.5f;
 	private const float ROT_ANG_ACC_RATIO = 4.5f;
@@ -30,7 +37,7 @@ public class PlayerController : MonoBehaviour {
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
 
 	private static float STEER_FORCE_DIFF_MULT;
-	private static float ORTHO_FORCE_DIFF_MULT;
+	private static float ORTHO_ACC_DIFF_MULT;
 
 	private static float GRAVITY_QUERY_RANGE;
 	private const float GRAVITY_RADIUS = 75.0f;
@@ -49,14 +56,19 @@ public class PlayerController : MonoBehaviour {
 
 	private float thrustInput;
 	private float brakeInput;
-	private float fwdInput;
+	private float verticalInput;
+	private float horizontalInput;
 	private float orthoInput;
+
+	private float fwdSpeedAbs;
 
 	private DebugUI debugUI;
 	private Rigidbody body;
 
 	private PController fwdMotor;
 	private PController fwdDamping;
+	private PController orthoMotor;
+	private PController orthoDamping;
 
 	private static float BOUNDS_SIZE;
 	private const float BOUNDS_PUSH_RANGE = 10f;
@@ -75,13 +87,15 @@ public class PlayerController : MonoBehaviour {
 		body.inertiaTensorRotation = Quaternion.identity;
 		DRAG_COEFF = body.mass * 0.5f;
 		STEER_FORCE_DIFF_MULT = 20f * body.mass;
-		ORTHO_FORCE_DIFF_MULT = 10f * body.mass;
+		ORTHO_ACC_DIFF_MULT = 5f;
 		SCAN_FRAME_SKIP = (int)Mathf.Round(SCAN_INTERVAL / Time.fixedDeltaTime);
 
 		fwdMotor = new PController (FWD_ACC_RATIO);
 		fwdDamping = new PController (FWD_DAMPING_RATIO);
 		fwdDamping.SetMinOutput(MIN_FWD_DAMPING);
-
+		orthoMotor = new PController (ORTHO_ACC_RATIO);
+		orthoDamping = new PController (ORTHO_DAMPING_RATIO);
+		orthoDamping.SetMinOutput (MIN_ORTHO_DAMPING);
 
 		platformCollider = PlatformPrefab.GetComponent<BoxCollider> ();
 
@@ -102,8 +116,11 @@ public class PlayerController : MonoBehaviour {
 	{
 		thrustInput = Input.GetAxis (THRUST_AXIS);
 		brakeInput = Input.GetAxis (BRAKE_AXIS);
-		fwdInput = Input.GetAxis (FWD_AXIS);
-		orthoInput = Input.GetAxis (ORTHO_AXIS);
+		verticalInput = Input.GetAxis (VERTICAL_AXIS);
+		horizontalInput = Input.GetAxis (HORIZONTAL_AXIS);
+		orthoInput = Input.GetAxis (SIDE_AXIS);
+
+		fwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
 
 		ApplyFwdForce ();
 		ApplyOrthoForce ();
@@ -169,36 +186,48 @@ public class PlayerController : MonoBehaviour {
 		return (thrustInput > 0.1f) || (brakeInput > 0.1f);
 	}
 
-	// Damping only
 	void ApplyOrthoForce() {
+		float targetSpeed;
 		Vector3 right = body.transform.right;
 		float orthoSpeed = Vector3.Dot (right, body.velocity);
-
-		// F = m * dv/dt
-		float maxForceMag = body.mass * Mathf.Abs(orthoSpeed)/Time.fixedDeltaTime;
-
 		float yAngSpeed = Vector3.Dot (body.transform.forward, body.angularVelocity);
 
-		float dragForceMag = Mathf.Abs (orthoSpeed) * DRAG_COEFF;
-		float diffForceMag = Mathf.Abs(ORTHO_FORCE_DIFF_MULT * yAngSpeed);
+		PController controller;
+		if (Mathf.Abs(orthoInput) > 0.1f) {
+			controller = orthoMotor;
+			targetSpeed = Mathf.Sign (orthoInput) * MAX_ORTHO_SPEED;
 
-		float orthoForceMag = dragForceMag + diffForceMag;
+			// Make max ortho speed slower at a slow linear velocity
+			float scaleDownRatio = Mathf.Min (fwdSpeedAbs / ORTHO_SCALE_DOWN_SPEED, 1f);
+			targetSpeed *= scaleDownRatio;
+		} else {
+			controller = orthoDamping;
+			targetSpeed = 0f;
+		}
 
-		orthoForceMag = Mathf.Min (orthoForceMag, maxForceMag);
+		float orthoSpeedDiff = targetSpeed - orthoSpeed;
 
-		Vector3 dragForce = -Mathf.Sign(orthoSpeed) * orthoForceMag * right ;
-		body.AddForce (dragForce);
+		float accToTargetAbs = Mathf.Abs(orthoSpeedDiff / Time.fixedDeltaTime);
+		controller.SetMaxOutput (Mathf.Min(accToTargetAbs, MAX_ORTHO_ACC));
+		float orthoAcc = controller.GetOutput(orthoSpeed, targetSpeed);
+		// Apply additional force to stabilize after a turn or a collision
+		float diffAcc = -Mathf.Sign(orthoSpeed) * Mathf.Abs (ORTHO_ACC_DIFF_MULT * yAngSpeed);
+		orthoAcc += diffAcc;
+		orthoAcc = controller.ApplyLimits (orthoAcc);
+
+		// F = m * a
+		Vector3 orthoForce = body.mass * orthoAcc * right;
+		body.AddForce (orthoForce);
 	}
 
 	void ApplyRotation()
 	{
 		float targetAngSpeed;
 		float angAccRatio;
-		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
-		if (Mathf.Abs (orthoInput) > 0.1f) {
-			targetAngSpeed = -Mathf.Sign (orthoInput) * MAX_ROT_ANG_SPEED;
+		if (Mathf.Abs (horizontalInput) > 0.1f) {
+			targetAngSpeed = -Mathf.Sign (horizontalInput) * MAX_ROT_ANG_SPEED;
 			// Make rotation slower at a slow linear velocity
-			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / ROT_SCALE_DOWN_SPEED, 1f);
+			float scaleDownRatio = Mathf.Min (fwdSpeedAbs / ROT_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
 			angAccRatio = ROT_ANG_ACC_RATIO;
 		} else {
@@ -221,11 +250,10 @@ public class PlayerController : MonoBehaviour {
 		float targetAngSpeed;
 		float angAccRatio;
 
-		float shipFwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
-		if (Mathf.Abs (fwdInput) > 0.1f) {
-			targetAngSpeed = Mathf.Sign (fwdInput) * MAX_STEER_ANG_SPEED;
+		if (Mathf.Abs (verticalInput) > 0.1f) {
+			targetAngSpeed = Mathf.Sign (verticalInput) * MAX_STEER_ANG_SPEED;
 			// Make steering slower at a slow linear velocity
-			float scaleDownRatio = Mathf.Min (shipFwdSpeedAbs / STEER_SCALE_DOWN_SPEED, 1f);
+			float scaleDownRatio = Mathf.Min (fwdSpeedAbs / STEER_SCALE_DOWN_SPEED, 1f);
 			targetAngSpeed *= scaleDownRatio;
 
 			// Increase steering strength when landed: otherwise the ship
