@@ -1,0 +1,6 @@
+The planet texture has been generated with the following tool:
+donjon - SciFi World Generator
+http://donjon.bin.sh/scifi/world/
+
+License:
+donjon.bin.sh is an online collection of random generators and other tools for pen-and-paper role-playing games. it is free to access, and not supported by advertising. any donations will be used to offset hosting costs.
