@@ -1,0 +1,1 @@
+python Tools/version.py %*
