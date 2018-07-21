@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : NetworkBehaviour {
 
 	public GameObject PlatformPrefab;
 
@@ -100,6 +101,11 @@ public class PlayerController : MonoBehaviour {
 		boundsFront = SceneManager.Instance.BoundsFront;
 		BOUNDS_SIZE = boundsFront.localScale.x / 2f;
 		GRAVITY_QUERY_RANGE = Math.Max(PLATFORM_GRAVITY_MAX_HEIGHT, SceneManager.Instance.PLANET_MAX_SIZE + GRAVITY_RADIUS);
+
+		if (isLocalPlayer) {
+			CameraController.Instance.Target = gameObject;
+			CameraController.Instance.Reset ();
+		}
 	}
 
 	void FixedUpdate()

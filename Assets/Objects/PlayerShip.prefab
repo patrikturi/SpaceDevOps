@@ -644,7 +644,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877f1e09573d3984ba2557094bf13bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 100
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1153658112365776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114579039339113708
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -658,6 +677,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlatformPrefab: {fileID: 1015716511143344, guid: dc370c34a7e771e4ba3181d13b8ec1c6,
     type: 2}
+--- !u!114 &114668852295378276
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1153658112365776}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 243
+    i1: 151
+    i2: 92
+    i3: 52
+    i4: 104
+    i5: 3
+    i6: 84
+    i7: 132
+    i8: 251
+    i9: 242
+    i10: 51
+    i11: 238
+    i12: 255
+    i13: 103
+    i14: 73
+    i15: 123
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!136 &136005519190228994
 CapsuleCollider:
   m_ObjectHideFlags: 1

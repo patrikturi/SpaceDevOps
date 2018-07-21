@@ -4,16 +4,33 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour {
 
+	public static UIManager Instance;
+
+	public GameObject LobbyPanel;
 	public GameObject DebugPanel;
 	public GameObject HelpPanel;
 	public GameObject QuitPanel;
+	public GameObject IntroPanel;
+	public GameObject PlayerHUD;
 
 	void Awake () {
+		if (Instance == null) {
+			Instance = this;
+		} else if(Instance != this) {
+			Destroy (this);
+		}
+	}
+
+	public void LoadInGameUI() {
+		LobbyPanel.SetActive (false);
+		DebugPanel.SetActive (Debug.isDebugBuild);
+		IntroPanel.SetActive (true);
+		PlayerHUD.SetActive (true);
 		Cursor.visible = false;
 	}
 
-	void Start() {
-		DebugPanel.SetActive (Debug.isDebugBuild);
+	public void LoadServerInGameUI() {
+		LobbyPanel.SetActive (false);
 	}
 
 	void OnGUI() {

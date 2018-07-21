@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SceneManager : MonoBehaviour {
 
@@ -52,7 +53,9 @@ public class SceneManager : MonoBehaviour {
 
 		SphereCollider planetCollider = PlanetPrefab.GetComponent<SphereCollider> ();
 		planetColliderSize = planetCollider.radius;
+	}
 
+	public void SpawnWorld() {
 		GameObject platforms = new GameObject ();
 		platforms.name = "Platforms";
 		platformsParent = platforms.transform;
@@ -105,7 +108,8 @@ public class SceneManager : MonoBehaviour {
 		for (int i = 0; i < cnt; i++) {
 			rot = Quaternion.AngleAxis (360f/ cnt * (i+startPhase), Vector3.up);
 			Vector3 pos = rot * vector + offset;
-			Instantiate (PlatformPrefab, pos, Quaternion.identity, platformsParent);
+			GameObject platform = Instantiate (PlatformPrefab, pos, Quaternion.identity, platformsParent);
+			NetworkServer.Spawn (platform);
 		}
 	}
 
@@ -126,6 +130,7 @@ public class SceneManager : MonoBehaviour {
 			GameObject planet = Instantiate (PlanetPrefab, pos, planetRot, planetsParent);
 			float size = Random.Range (PLANET_SIZE_VAR_MIN, PLANET_SIZE_VAR_MAX);
 			planet.transform.localScale = new Vector3 (size, size, size);
+			NetworkServer.Spawn (planet);
 		}
 	}
 

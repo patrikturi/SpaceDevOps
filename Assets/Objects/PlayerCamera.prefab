@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 390aa363e39066c408e22c9d3be70657, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Material: {fileID: 0}
+  Material: {fileID: 2100000, guid: 67b9e57ce1cbdd640a519f00b102d737, type: 2}
   DebugBounds: 0
 --- !u!114 &114962817435819938
 MonoBehaviour:

@@ -7,6 +7,7 @@ public class BoundsRenderer : MonoBehaviour {
 
 	public Material Material;
 	public bool DebugBounds = false;
+	public Transform ShipTransform;
 
 	private static float BOUNDS_SIZE;
 	private const float BOUNDS_VISIBLE_RANGE = 80f;
@@ -14,11 +15,9 @@ public class BoundsRenderer : MonoBehaviour {
 	private const int BOUNDS_FADE_CNT = 7;
 
 	private new Camera camera;
-	private Transform shipTransform;
 
 	void Awake() {
 		camera = GetComponent<Camera> ();
-		shipTransform = GetComponent<CameraController> ().Target.transform;
 	}
 
 	void Start() {
@@ -26,8 +25,11 @@ public class BoundsRenderer : MonoBehaviour {
 	}
 
 	void OnPostRender() {
+		if (ShipTransform == null) {
+			return;
+		}
 
-		Vector3 pos = shipTransform.position;
+		Vector3 pos = ShipTransform.position;
 
 		GL.PushMatrix();
 		GL.LoadProjectionMatrix(camera.projectionMatrix);

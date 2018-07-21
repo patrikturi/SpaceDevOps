@@ -4,7 +4,22 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-	public GameObject Target;
+	public static CameraController Instance;
+
+	public GameObject Target {
+		get { return target; }
+		set {
+			target = value;
+			targetRenderer = target.GetComponent<MeshRenderer> ();
+			cameraUp = target.transform.up;
+			GetComponent<BoundsRenderer> ().ShipTransform = target.transform;
+			targetBody = target.GetComponent<Rigidbody> ();
+			cameraUp = target.transform.up;
+			playerController = target.GetComponent<PlayerController> ();
+		}
+	}
+
+	private GameObject target;
 
 	private const string CAMERA_BUTTON = "Camera";
 	// Camera will be flipped if view hits a large object
@@ -28,16 +43,19 @@ public class CameraController : MonoBehaviour {
 
 	private PlayerController playerController;
 
+		if (Instance == null) {
+			Instance = this;
+		} else if(Instance != this) {
+			Destroy (this);
+		}
+	}
+
 	void Start() {
-		targetRenderer = Target.GetComponent<MeshRenderer> ();
-		targetBody = Target.GetComponent<Rigidbody> ();
 		UP_SMOOTHING_STEP = 4f * Time.fixedDeltaTime;
-		cameraUp = Target.transform.up;
-		playerController = Target.GetComponent<PlayerController> ();
 	}
 
 	public void Reset() {
-		Transform targetTr = Target.transform;
+		Transform targetTr = target.transform;
 
 		cameraUp = targetTr.up;
 		if (firstPersonCamera) {
@@ -51,7 +69,10 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		Transform targetTr = Target.transform;
+		if (target == null) {
+			return;
+		}
+		Transform targetTr = target.transform;
 		if (Input.GetButtonDown (CAMERA_BUTTON)) {
 			firstPersonCamera = !firstPersonCamera;
 		}
