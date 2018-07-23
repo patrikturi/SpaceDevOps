@@ -110,6 +110,10 @@ public class PlayerController : NetworkBehaviour {
 
 	void FixedUpdate()
 	{
+		if (!isLocalPlayer) {
+			return;
+		}
+
 		thrustInput = Input.GetAxis (THRUST_AXIS);
 		brakeInput = Input.GetAxis (BRAKE_AXIS);
 		verticalInput = Input.GetAxis (VERTICAL_AXIS);
