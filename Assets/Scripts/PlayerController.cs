@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour {
 	private static float ORTHO_FORCE_DIFF_MULT;
 
 	private static float GRAVITY_QUERY_RANGE;
-	private const float GRAVITY_RADIUS = 75.0f;
+	private const float GRAVITY_RADIUS = 10.0f;
 	private const float MIN_GRAVITY_RADIUS = 50f;
 	private static float DRAG_COEFF;
 	private const float GRAVITY_ACC = 7.5f;
@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour {
 		debugUI = DebugUI.Instance;
 		boundsFront = SceneManager.Instance.BoundsFront;
 		BOUNDS_SIZE = boundsFront.localScale.x / 2f;
-		GRAVITY_QUERY_RANGE = SceneManager.Instance.PLANET_MAX_SIZE + GRAVITY_RADIUS * SceneManager.PLANET_SIZE_VAR_MAX;
+		GRAVITY_QUERY_RANGE = Math.Max(PLATFORM_GRAVITY_MAX_HEIGHT, SceneManager.Instance.PLANET_MAX_SIZE + GRAVITY_RADIUS);
 	}
 
 	void FixedUpdate()
@@ -314,7 +314,6 @@ public class PlayerController : MonoBehaviour {
 		Collider[] hitColliders = Physics.OverlapSphere(body.transform.position, GRAVITY_QUERY_RANGE);
 
 		sphereGravityObjects.Clear ();
-		// TODO: filter duplicates
 		foreach (Collider collider in hitColliders) {
 			GameObject obj = collider.gameObject;
 			if (obj.tag.Contains ("SPHERE_GRAVITY")) {
@@ -380,8 +379,7 @@ public class PlayerController : MonoBehaviour {
 			float planetToShip = toObj.magnitude;
 			float planetSize = getPlanetSize(obj);
 
-			float gravityRadius = GRAVITY_RADIUS * obj.transform.localScale.x;
-			gravityRadius = Mathf.Max (gravityRadius, MIN_GRAVITY_RADIUS);
+			float gravityRadius = GRAVITY_RADIUS;
 			if (planetToShip > planetSize + gravityRadius) {
 				continue;
 			}
