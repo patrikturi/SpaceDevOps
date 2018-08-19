@@ -8,17 +8,19 @@ public class PlayerWeapon : MonoBehaviour {
 
 	public GameObject BulletPrefab;
 
-	private const float BULLET_SPEED = 30f;
+	private const float BULLET_SPEED = 50f;
 	private const float BULLET_DURATION = 3.5f;
 	private const float COOLDOWN_DURATION = 0.25f;
 	private const int BULLET_LAYER = 8;
 
+	Rigidbody shipBody;
 	private Transform bulletSpawnRight;
 	private Transform bulletSpawnLeft;
 	private Quaternion bulletRotationOffset;
 	private float fireEnabledTimeStamp = -1f;
 
 	void Awake() {
+		shipBody = GetComponent<Rigidbody> ();
 		bulletSpawnRight = transform.Find ("BulletSpawnRight").transform;
 		bulletSpawnLeft = transform.Find ("BulletSpawnLeft").transform;
 
@@ -36,7 +38,6 @@ public class PlayerWeapon : MonoBehaviour {
 	}
 
 	private void FireAll() {
-
 		FireSingle (bulletSpawnRight);
 		FireSingle (bulletSpawnLeft);
 	}
@@ -45,7 +46,7 @@ public class PlayerWeapon : MonoBehaviour {
 		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawn.position, transform.rotation * spawn.localRotation * bulletRotationOffset);
 
 		Rigidbody body = bulletObject.GetComponent<Rigidbody> ();
-		body.velocity = transform.rotation * spawn.localRotation * Vector3.forward * BULLET_SPEED;
+		body.velocity = shipBody.velocity + transform.rotation * spawn.localRotation * Vector3.forward * BULLET_SPEED;
 		bulletObject.layer = BULLET_LAYER;
 		var bulletScript = bulletObject.GetComponent<Bullet> ();
 		bulletScript.Player = gameObject;
