@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour {
 	private const float FWD_DAMPING_RATIO = 0.075f;
 	private const float MIN_FWD_DAMPING = 0.75f;
 
-	private const float MAX_ROT_ANG_SPEED = 2.5f;
+	private const float MAX_ROT_ANG_SPEED = 2f;
 	private const float ROT_ANG_ACC_RATIO = 4.5f;
 	private const float ROT_ANG_DECC_RATIO = 9f;
 	private const float ROT_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour {
 	private const float Y_ROT_ANG_ACC_RATIO = 100f;
 
 	private const float MAX_STEER_ANG_SPEED = 1.75f;
-	private const float STEER_ANG_ACC_RATIO = 3.5f;
+	private const float STEER_ANG_ACC_RATIO = 2f;
 	private const float STEER_LANDED_ANG_ACC_RATIO = 14f;
 	private const float STEER_ANG_DECC_RATIO = 9f;
 	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
