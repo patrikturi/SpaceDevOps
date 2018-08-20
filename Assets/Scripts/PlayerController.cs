@@ -273,6 +273,14 @@ public class PlayerController : MonoBehaviour {
 
 		float upAngSpeedDiff = targetAngSpeed - upAngSpeed;
 		float angAcc = upAngSpeedDiff * angAccRatio;
+
+		// T = I * a = I * dw/dt
+		// Acceleration until 0 angular velocity
+		float angAccMax = -upAngSpeed/Time.fixedDeltaTime;
+		if (Mathf.Sign (angAcc) == Mathf.Sign (angAccMax) && Mathf.Abs(targetAngSpeed) < 0.1f) {
+			angAcc = Mathf.Clamp (angAcc, -Mathf.Abs (angAccMax), Mathf.Abs (angAccMax));
+		}
+
 		float torqueMag = body.inertiaTensor.y * angAcc;
 		Vector3 relTorque = new Vector3(0, torqueMag, 0);
 		body.AddRelativeTorque (relTorque);
