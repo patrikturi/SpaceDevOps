@@ -13,8 +13,11 @@ public class CameraController : MonoBehaviour {
 	private const float POS_OFFSET_MAG_DEFAULT = 11.41f;
 	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private static float UP_SMOOTHING_STEP;
+	private const float LOOK_AHEAD_DISTANCE = 4f;
+	private const float LOOK_AHEAD_MULTIPLIER = 5f;
 
 	private MeshRenderer targetRenderer;
+	private Rigidbody targetBody;
 	private Vector3 cameraUp;
 	// Shift Y axis to negative value if current view collides with a large object
 	private int offsetYAxisSign = 1;
@@ -24,6 +27,7 @@ public class CameraController : MonoBehaviour {
 
 	void Start() {
 		targetRenderer = Target.GetComponent<MeshRenderer> ();
+		targetBody = Target.GetComponent<Rigidbody> ();
 		UP_SMOOTHING_STEP = 2f * Time.fixedDeltaTime;
 		cameraUp = Target.transform.up;
 	}
@@ -102,6 +106,11 @@ public class CameraController : MonoBehaviour {
 		offsetDir.y *= offsetYAxisSign;
 		Vector3 desiredPos = targetTr.position + targetTr.rotation * (offsetDir * posOffsetMag);
 
+		float xAngSpeed = Vector3.Dot (targetTr.right, targetBody.angularVelocity);
+		float desiredPosOffset = LOOK_AHEAD_MULTIPLIER * xAngSpeed;
+
+		desiredPos += targetTr.rotation * new Vector3 (0, desiredPosOffset, 0);
+
 		Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref velocity, POS_SMOOTHING_DURATION,
 			Mathf.Infinity, Time.fixedDeltaTime);
 
@@ -109,7 +118,7 @@ public class CameraController : MonoBehaviour {
 		cameraUp = Vector3.Lerp (cameraUp, targetTr.up, UP_SMOOTHING_STEP);
 
 		transform.position = newPos;
-		Vector3 lookAhead = targetTr.rotation * new Vector3 (0, 0, 50);
+		Vector3 lookAhead = targetTr.rotation * new Vector3 (0, 0, LOOK_AHEAD_DISTANCE);
 		transform.LookAt (targetTr.position + lookAhead, cameraUp);
 	}
 }
