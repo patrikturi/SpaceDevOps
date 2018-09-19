@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour {
 	private const string CAMERA_BUTTON = "Camera";
 	// Camera will be flipped if view hits a large object
 	private const string LARGE_OBJECT_TAG = "LARGE";
-	private static Vector3 POS_OFFSET_DIR = new Vector3 (0, 0, -0.88f);
+	private static Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.25f, -0.88f);
 	private const float POS_OFFSET_MAG_DEFAULT = 11.41f;
 	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private static float UP_SMOOTHING_STEP;
@@ -109,6 +109,7 @@ public class CameraController : MonoBehaviour {
 		cameraUp = Vector3.Lerp (cameraUp, targetTr.up, UP_SMOOTHING_STEP);
 
 		transform.position = newPos;
-		transform.LookAt (targetTr.position, cameraUp);
+		Vector3 lookAhead = targetTr.rotation * new Vector3 (0, 0, 50);
+		transform.LookAt (targetTr.position + lookAhead, cameraUp);
 	}
 }
