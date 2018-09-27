@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour {
 	private const string BRAKE_AXIS = "Brake";
 	private const string VERTICAL_AXIS = "Vertical";
 	private const string HORIZONTAL_AXIS = "Horizontal";
-	private const string SIDE_AXIS = "Side";
 
 	private const float MAX_SPEED = 25;
 	private const float FWD_ACC_RATIO = 0.75f;
@@ -23,9 +22,6 @@ public class PlayerController : MonoBehaviour {
 	private const float ROT_ANG_ACC_RATIO = 4.5f;
 	private const float ROT_ANG_DECC_RATIO = 9f;
 	private const float ROT_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
-
-	private const float MAX_Y_ROT_ANG_SPEED = 0.5f;
-	private const float Y_ROT_ANG_ACC_RATIO = 100f;
 
 	private const float MAX_STEER_ANG_SPEED = 1.75f;
 	private const float STEER_ANG_ACC_RATIO = 2f;
@@ -55,7 +51,6 @@ public class PlayerController : MonoBehaviour {
 	private float brakeInput;
 	private float verticalInput;
 	private float horizontalInput;
-	private float orthoInput;
 
 	private float fwdSpeedAbs;
 
@@ -111,7 +106,6 @@ public class PlayerController : MonoBehaviour {
 		brakeInput = Input.GetAxis (BRAKE_AXIS);
 		verticalInput = Input.GetAxis (VERTICAL_AXIS);
 		horizontalInput = Input.GetAxis (HORIZONTAL_AXIS);
-		orthoInput = Input.GetAxis (SIDE_AXIS);
 
 		fwdSpeedAbs = Mathf.Abs(Vector3.Dot(body.transform.forward, body.velocity));
 
@@ -254,33 +248,12 @@ public class PlayerController : MonoBehaviour {
 		body.AddRelativeTorque (relTorque);
 	}
 
+	// Damping only
 	void ApplyYRotation() {
-		float targetAngSpeed;
-		float angAccRatio;
-		if (Mathf.Abs (orthoInput) > 0.1f) {
-			targetAngSpeed = Mathf.Sign (orthoInput) * MAX_Y_ROT_ANG_SPEED;
-			// Make rotation slower at a slow linear velocity
-			float scaleDownRatio = Mathf.Min (fwdSpeedAbs / ROT_SCALE_DOWN_SPEED, 1f);
-			targetAngSpeed *= scaleDownRatio;
-			angAccRatio = Y_ROT_ANG_ACC_RATIO;
-		} else {
-			targetAngSpeed = 0f;
-			angAccRatio = Y_ROT_ANG_ACC_RATIO;
-		}
-
 		Vector3 up = body.transform.up;
 		float upAngSpeed = Vector3.Dot (up, body.angularVelocity);
 
-		float upAngSpeedDiff = targetAngSpeed - upAngSpeed;
-		float angAcc = upAngSpeedDiff * angAccRatio;
-
-		// T = I * a = I * dw/dt
-		// Acceleration until 0 angular velocity
-		float angAccMax = -upAngSpeed/Time.fixedDeltaTime;
-		if (Mathf.Sign (angAcc) == Mathf.Sign (angAccMax) && Mathf.Abs(targetAngSpeed) < 0.1f) {
-			angAcc = Mathf.Clamp (angAcc, -Mathf.Abs (angAccMax), Mathf.Abs (angAccMax));
-		}
-
+		float angAcc = -upAngSpeed / Time.fixedDeltaTime;
 		float torqueMag = body.inertiaTensor.y * angAcc;
 		Vector3 relTorque = new Vector3(0, torqueMag, 0);
 		body.AddRelativeTorque (relTorque);
