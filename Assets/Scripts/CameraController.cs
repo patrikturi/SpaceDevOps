@@ -9,12 +9,12 @@ public class CameraController : MonoBehaviour {
 	private const string CAMERA_BUTTON = "Camera";
 	// Camera will be flipped if view hits a large object
 	private const string LARGE_OBJECT_TAG = "LARGE";
-	private static Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.25f, -0.88f);
+	private static Vector3 POS_OFFSET_DIR = new Vector3 (0, 0.05f, -0.88f);
 	private const float POS_OFFSET_MAG_DEFAULT = 11.41f;
 	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private static float UP_SMOOTHING_STEP;
 	private const float LOOK_AHEAD_DISTANCE = 4f;
-	private const float LOOK_AHEAD_MULTIPLIER = 5f;
+	private const float Y_OFFSET_MULTIPLIER = 4.5f;
 
 	private MeshRenderer targetRenderer;
 	private Rigidbody targetBody;
@@ -28,7 +28,7 @@ public class CameraController : MonoBehaviour {
 	void Start() {
 		targetRenderer = Target.GetComponent<MeshRenderer> ();
 		targetBody = Target.GetComponent<Rigidbody> ();
-		UP_SMOOTHING_STEP = 2f * Time.fixedDeltaTime;
+		UP_SMOOTHING_STEP = 4f * Time.fixedDeltaTime;
 		cameraUp = Target.transform.up;
 	}
 
@@ -107,7 +107,7 @@ public class CameraController : MonoBehaviour {
 		Vector3 desiredPos = targetTr.position + targetTr.rotation * (offsetDir * posOffsetMag);
 
 		float xAngSpeed = Vector3.Dot (targetTr.right, targetBody.angularVelocity);
-		float desiredPosOffset = LOOK_AHEAD_MULTIPLIER * xAngSpeed;
+		float desiredPosOffset = Y_OFFSET_MULTIPLIER * xAngSpeed;
 
 		desiredPos += targetTr.rotation * new Vector3 (0, desiredPosOffset, 0);
 
