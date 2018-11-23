@@ -14,7 +14,8 @@ public class CameraController : MonoBehaviour {
 	private const float POS_SMOOTHING_DURATION = 0.4f;
 	private static float UP_SMOOTHING_STEP;
 	private const float LOOK_AHEAD_DISTANCE = 4f;
-	private const float Y_OFFSET_MULTIPLIER = 4.5f;
+	private const float Y_ROT_ANG_VEL_RATIO = 21f;
+	private float LANDED_Y_ROT_ANGLE = 25f;
 
 	private MeshRenderer targetRenderer;
 	private Rigidbody targetBody;
@@ -25,11 +26,14 @@ public class CameraController : MonoBehaviour {
 	// false means it's Third person camera
 	private bool firstPersonCamera = false;
 
+	private PlayerController playerController;
+
 	void Start() {
 		targetRenderer = Target.GetComponent<MeshRenderer> ();
 		targetBody = Target.GetComponent<Rigidbody> ();
 		UP_SMOOTHING_STEP = 4f * Time.fixedDeltaTime;
 		cameraUp = Target.transform.up;
+		playerController = Target.GetComponent<PlayerController> ();
 	}
 
 	public void Reset() {
@@ -67,6 +71,37 @@ public class CameraController : MonoBehaviour {
 	private void UpdateThirdPersonCamera(Transform targetTr) {
 		targetRenderer.enabled = true;
 
+		// Direction from the target to the camera
+		Vector3 offsetDir = new Vector3 (POS_OFFSET_DIR.x, POS_OFFSET_DIR.y, POS_OFFSET_DIR.z);
+
+		float xAngSpeed = Vector3.Dot (targetTr.right, targetBody.angularVelocity);
+		// Additional rotation on the x axis as needed
+		float xRotAngle = Y_ROT_ANG_VEL_RATIO*xAngSpeed;
+		if (playerController.IsLanded) {
+			xRotAngle += LANDED_Y_ROT_ANGLE;
+		}
+		// Apply the rotation on the x axis
+		offsetDir = Quaternion.AngleAxis (xRotAngle, Vector3.right) * offsetDir;
+
+		// Get camera distance -- avoid blocked camera by reducing distance or flipping rotation on the x axis
+		float cameraDistSigned = calculateCameraDist (targetTr, offsetDir);
+		float cameraDist = Mathf.Abs (cameraDistSigned);
+
+		offsetDir.y *= Mathf.Sign(cameraDistSigned);
+		Vector3 desiredPos = targetTr.position + targetTr.rotation * (offsetDir * cameraDist);
+
+		Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref velocity, POS_SMOOTHING_DURATION,
+			Mathf.Infinity, Time.fixedDeltaTime);
+
+		// Must keep the camera Up vector moving otherwise the camera can 'flip' around
+		cameraUp = Vector3.Lerp (cameraUp, targetTr.up, UP_SMOOTHING_STEP);
+
+		transform.position = newPos;
+		Vector3 lookAhead = targetTr.rotation * new Vector3 (0, 0, LOOK_AHEAD_DISTANCE);
+		transform.LookAt (targetTr.position + lookAhead, cameraUp);
+	}
+
+	private float calculateCameraDist(Transform targetTr, Vector3 posOffsetDir) {
 		RaycastHit hit;
 		float posOffsetMag;
 
@@ -74,7 +109,7 @@ public class CameraController : MonoBehaviour {
 		offsetYAxisSign = 1;
 
 		// Bring camera closer if there is a raycast hit
-		if (Physics.Raycast(targetTr.position, targetTr.rotation * POS_OFFSET_DIR, out hit, POS_OFFSET_MAG_DEFAULT)) {
+		if (Physics.Raycast(targetTr.position, targetTr.rotation * posOffsetDir, out hit, POS_OFFSET_MAG_DEFAULT)) {
 
 			string tag = hit.transform.gameObject.tag;
 
@@ -83,13 +118,13 @@ public class CameraController : MonoBehaviour {
 			// The current view is blocked -> check if the Y axis of the camera offset can be shifted to negative to provide better sight
 			// 1) The object hit must have a specific tag
 			if (tag.Contains (LARGE_OBJECT_TAG)) {
-				
-				Vector3 proposedNewDir = new Vector3 (POS_OFFSET_DIR.x, -POS_OFFSET_DIR.y, POS_OFFSET_DIR.z);
+
+				Vector3 proposedNewDir = new Vector3 (posOffsetDir.x, -posOffsetDir.y, posOffsetDir.z);
 				Vector3 proposedDirAbs = targetTr.rotation * proposedNewDir;
 				// 2) The new view has to be free
 				bool raycast2Result = Physics.Raycast (targetTr.position, proposedDirAbs, out hit, POS_OFFSET_MAG_DEFAULT);
 				if (!raycast2Result || !hit.transform.gameObject.tag.Contains (LARGE_OBJECT_TAG)) {
-					
+
 					offsetYAxisSign = -1;
 					// Check max camera distance at the new view
 					if (raycast2Result) {
@@ -101,24 +136,6 @@ public class CameraController : MonoBehaviour {
 			}
 
 		}
-
-		Vector3 offsetDir = new Vector3 (POS_OFFSET_DIR.x, POS_OFFSET_DIR.y, POS_OFFSET_DIR.z);
-		offsetDir.y *= offsetYAxisSign;
-		Vector3 desiredPos = targetTr.position + targetTr.rotation * (offsetDir * posOffsetMag);
-
-		float xAngSpeed = Vector3.Dot (targetTr.right, targetBody.angularVelocity);
-		float desiredPosOffset = Y_OFFSET_MULTIPLIER * xAngSpeed;
-
-		desiredPos += targetTr.rotation * new Vector3 (0, desiredPosOffset, 0);
-
-		Vector3 newPos = Vector3.SmoothDamp (transform.position, desiredPos, ref velocity, POS_SMOOTHING_DURATION,
-			Mathf.Infinity, Time.fixedDeltaTime);
-
-		// Must keep the camera Up vector moving otherwise the camera can 'flip' around
-		cameraUp = Vector3.Lerp (cameraUp, targetTr.up, UP_SMOOTHING_STEP);
-
-		transform.position = newPos;
-		Vector3 lookAhead = targetTr.rotation * new Vector3 (0, 0, LOOK_AHEAD_DISTANCE);
-		transform.LookAt (targetTr.position + lookAhead, cameraUp);
+		return posOffsetMag * offsetYAxisSign;
 	}
 }

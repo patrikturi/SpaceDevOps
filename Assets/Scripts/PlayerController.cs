@@ -72,6 +72,8 @@ public class PlayerController : MonoBehaviour {
 	private BoxCollider platformCollider;
 	private bool landed = false;
 
+	public bool IsLanded { get { return landed; } }
+
 	void Awake() {
 		body = GetComponent<Rigidbody> ();
 		body.inertiaTensorRotation = Quaternion.identity;
