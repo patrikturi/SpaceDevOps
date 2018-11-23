@@ -25,11 +25,13 @@ public class Bullet : MonoBehaviour {
 			}
 		}
 
-		// Prevent shooting self
+		// Damageable and not self
 		if (health != null && hitObject != Player) {
 			health.TakeDamage (BULLET_DAMAGE);
 		}
 
-		Destroy (gameObject);
+		if (hitObject != Player) {
+			Destroy (gameObject);
+		}
 	}
 }
