@@ -4,51 +4,53 @@ using UnityEngine;
 
 public class Health : MonoBehaviour {
 
-	private static float INITIAL_WIDTH;
-	private const int MAX_HEALTH = 100;
-	private const float EXPLOSION_LIFETIME = 4.5f;
-	private const float EXPLOSION_BURST_TIME = 0.5f;
+	public int MAX_HEALTH = 100;
 
-	private int currentHealth = MAX_HEALTH;
-	private RectTransform healthBar;
+	protected int currentHealth;
+	protected float destroyDelayTime = 0f;
 	private GameObject fire;
 	private GameObject explosion;
 	private ParticleSystem fireParticles;
 	private ParticleSystem explosionParticles;
 
 	void Awake() {
-		fire = transform.Find ("Fire").gameObject;
-		explosion = transform.Find ("Explosion").gameObject;
-		fireParticles = fire.GetComponent<ParticleSystem> ();
-		explosionParticles = explosion.GetComponent<ParticleSystem> ();
+		fire = findOptionalChild("Fire");
+		explosion = findOptionalChild("Explosion");
+		if (fire != null) {
+			fireParticles = fire.GetComponent<ParticleSystem> ();
+		}
+		if (explosion != null) {
+			explosionParticles = explosion.GetComponent<ParticleSystem> ();
+		}
 	}
 
-	void Start() {
-		healthBar = SceneManager.Instance.HealthBar;
-		INITIAL_WIDTH = healthBar.sizeDelta.x;
+	GameObject findOptionalChild(string objectName) {
+		Transform tr = transform.Find (objectName);
+		if (tr == null) {
+			return null;
+		}
+		return tr.gameObject;
+	}
+
+	protected virtual void Start() {
+		currentHealth = MAX_HEALTH;
 	}
 
 	void OnEnable() {
-		fire.transform.parent = transform;
-		fire.transform.localPosition = Vector3.zero;
-		fire.transform.localRotation = Quaternion.identity;
-		explosion.transform.parent = transform;
-		explosion.transform.localPosition = Vector3.zero;
-		explosion.transform.localRotation = Quaternion.identity;
+		if (fire != null) {
+			fire.transform.parent = transform;
+			fire.transform.localPosition = Vector3.zero;
+			fire.transform.localRotation = Quaternion.identity;
+		}
+		if (explosion != null) {
+			explosion.transform.parent = transform;
+			explosion.transform.localPosition = Vector3.zero;
+			explosion.transform.localRotation = Quaternion.identity;
+		}
 	}
 
 	public void Reset() {
 		setHealth (MAX_HEALTH);
-	}
-
-	void OnGUI() {
-		Event e = Event.current;
-
-		if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.D) {
-			TakeDamage (MAX_HEALTH);
-		} else if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.X) {
-			TakeDamage (20);
-		}
 	}
 
 	public void TakeDamage(int amount) {
@@ -58,32 +60,44 @@ public class Health : MonoBehaviour {
 
 		if (currentHealth > amount) {
 			setHealth (currentHealth - amount);
-			fireParticles.Emit (amount/10+1);
+			if (fireParticles != null) {
+				fireParticles.Emit (amount / 10 + 1);
+			}
 		} else {
 			Die ();
 		}
 	}
 
-	private void setHealth(int health) {
+	protected virtual void setHealth(int health) {
 		currentHealth = health;
-		healthBar.sizeDelta = new Vector2(INITIAL_WIDTH*currentHealth/MAX_HEALTH, healthBar.sizeDelta.y);
 	}
 
 	private void Die() {
 		setHealth (0);
 		// Detach fire particles from the ship so they don't disappear when the ship is deactivated
-		fire.transform.parent = null;
-		explosion.transform.parent = null;
+		if (fire != null) {
+			fire.transform.parent = null;
+		}
+		if (explosion != null) {
+			explosion.transform.parent = null;
+		}
 
-		explosionParticles.transform.position = transform.position + transform.forward * 0.75f;
+		if (explosionParticles != null) {
+			explosionParticles.transform.position = transform.position + transform.forward * 0.75f;
+		}
 
-		Rigidbody body = GetComponent<Rigidbody> ();
-		Rigidbody expBody = explosionParticles.GetComponent<Rigidbody> ();
-		expBody.velocity = body.velocity;
+		if (explosionParticles != null) {
+			Rigidbody body = GetComponent<Rigidbody> ();
+			Rigidbody expBody = explosionParticles.GetComponent<Rigidbody> ();
+			expBody.velocity = body.velocity;
+			explosionParticles.Play ();
+		}
 
-		explosionParticles.Play ();
-
-		Invoke ("SetInactive", EXPLOSION_BURST_TIME-0.2f);
+		if (destroyDelayTime > float.Epsilon) {
+			Invoke ("SetInactive", destroyDelayTime);
+		} else {
+			SetInactive();
+		}
 	}
 
 	private void SetInactive() {
