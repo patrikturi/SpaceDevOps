@@ -14,7 +14,12 @@ ModelImporter:
     3300000: Sphere
     4300000: Sphere
     10800000: Lamp
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.001
+    second: {fileID: 2100000, guid: f11e5b82adb40ea4cb3a25ee1dbd2885, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
