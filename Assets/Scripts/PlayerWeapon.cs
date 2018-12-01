@@ -9,7 +9,7 @@ public class PlayerWeapon : MonoBehaviour {
 	public GameObject BulletPrefab;
 
 	private const float BULLET_SPEED = 50f;
-	private const float BULLET_DURATION = 3.5f;
+	private const float BULLET_DURATION = 5.5f;
 	private const float COOLDOWN_DURATION = 0.25f;
 	private const int BULLET_LAYER = 8;
 

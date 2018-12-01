@@ -10,8 +10,14 @@ public class SceneManager : MonoBehaviour {
 	public Transform BoundsFront;
 	private Transform platformsParent;
 	private Transform planetsParent;
+	private Transform doodadsParent;
 	public GameObject PlatformPrefab;
 	public GameObject PlanetPrefab;
+	public List<GameObject> DoodadPrefabs;
+	private int DOODAD_COUNT = 200;
+	private const float DOODAD_RADIUS_MAX = 1.5f;
+	private const float DOODAD_SIZE_MIN = 0.6f;
+	private const float DOODAD_SIZE_MAX = 5f;
 
 	public float BOUNDS_SIZE {
 		get {
@@ -54,7 +60,13 @@ public class SceneManager : MonoBehaviour {
 		planets.name = "Planets";
 		planetsParent = planets.transform;
 
+		GameObject doodads = new GameObject ();
+		doodads.name = "Doodads";
+		doodadsParent = doodads.transform;
+
 		SpawnStaticScene ();
+
+		SpawnDoodads(DOODAD_COUNT);
 	}
 
 	private void SpawnStaticScene() {
@@ -109,12 +121,43 @@ public class SceneManager : MonoBehaviour {
 			float offsetVarY = Random.Range (-offsetVarMax, offsetVarMax);
 			float offsetVarZ = Random.Range (-offsetVarMax*4, offsetVarMax*4);
 			pos += new Vector3 (offsetVarX, offsetVarY, offsetVarZ);
-			float xRot = Random.Range (0f, 360f);
-			float yRot = Random.Range (0f, 360f);
-			float zRot = Random.Range (0f, 360f);
-			GameObject planet = Instantiate (PlanetPrefab, pos, Quaternion.Euler(xRot, yRot,zRot), planetsParent);
+
+			Quaternion planetRot = Quaternion.Euler(Random.insideUnitSphere * 360f);
+			GameObject planet = Instantiate (PlanetPrefab, pos, planetRot, planetsParent);
 			float size = Random.Range (PLANET_SIZE_VAR_MIN, PLANET_SIZE_VAR_MAX);
 			planet.transform.localScale = new Vector3 (size, size, size);
+		}
+	}
+
+	// Spawn destructible things
+	private void SpawnDoodads(int spawnCount) {
+
+		int count = 0;
+		Collider[] hitResults = new Collider[1];
+		int layer = LayerMask.GetMask ("Default");
+		float spawnRange = BOUNDS_SIZE*1.2f - DOODAD_RADIUS_MAX;
+		if (DoodadPrefabs.Count == 0) {
+			return;
+		}
+		while (count < spawnCount) {
+			Vector3 pos = Random.insideUnitSphere * spawnRange;
+			float size = Random.Range (DOODAD_SIZE_MIN, DOODAD_SIZE_MAX);
+
+			int hits = Physics.OverlapSphereNonAlloc (pos, DOODAD_RADIUS_MAX*size, hitResults, layer, QueryTriggerInteraction.Ignore);
+
+			if (hits <= 0) {
+				Vector3 rotVector = Random.insideUnitCircle * 360f;
+				Quaternion rot = Quaternion.Euler (rotVector);
+				int typeIndex = Random.Range (0, DoodadPrefabs.Count);
+				GameObject prefab = DoodadPrefabs [typeIndex];
+				GameObject doodad = Instantiate (prefab, pos, rot, doodadsParent);
+				doodad.transform.localScale = new Vector3 (size, size, size);
+				Rigidbody body = doodad.GetComponent<Rigidbody> ();
+				if (body != null) {
+					body.mass = body.mass * size;
+				}
+				count++;
+			}
 		}
 	}
 }

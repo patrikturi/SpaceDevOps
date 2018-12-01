@@ -2167,6 +2167,12 @@ MonoBehaviour:
     type: 2}
   PlanetPrefab: {fileID: 1633682996953980, guid: 64e4584319ab5934bbb008d6a8ddbdca,
     type: 2}
+  DoodadPrefabs:
+  - {fileID: 1849208486296766, guid: 3e98052a426fb6c498c948bb85f59d68, type: 2}
+  - {fileID: 1295232872651370, guid: 5a8186cca7f19104aa00bf20cd8d88ec, type: 2}
+  - {fileID: 1805513521644750, guid: 8e13538f5736e5f468b34140678a6ab8, type: 2}
+  - {fileID: 1662407024087294, guid: b8ba1cc4fa594474b9211e1daf08b11f, type: 2}
+  - {fileID: 1468679270357240, guid: b8198be692c880f48bee4b76ac786de4, type: 2}
 --- !u!4 &1395675760
 Transform:
   m_ObjectHideFlags: 0
