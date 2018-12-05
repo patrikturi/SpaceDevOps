@@ -18,16 +18,16 @@ public class PlayerController : MonoBehaviour {
 	private const float FWD_DAMPING_RATIO = 0.075f;
 	private const float MIN_FWD_DAMPING = 0.75f;
 
-	private const float MAX_ROT_ANG_SPEED = 2f;
-	private const float ROT_ANG_ACC_RATIO = 4.5f;
+	private const float MAX_ROT_ANG_SPEED = 1.7f;
+	private const float ROT_ANG_ACC_RATIO = 5f;
 	private const float ROT_ANG_DECC_RATIO = 9f;
-	private const float ROT_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
+	private const float ROT_SCALE_DOWN_SPEED = 0.15f * MAX_SPEED;
 
-	private const float MAX_STEER_ANG_SPEED = 1.75f;
-	private const float STEER_ANG_ACC_RATIO = 2f;
-	private const float STEER_LANDED_ANG_ACC_RATIO = 14f;
+	private const float MAX_STEER_ANG_SPEED = 1.4f;
+	private const float STEER_ANG_ACC_RATIO = 1.8f;
+	private const float STEER_LANDED_ANG_ACC_RATIO = 14.5f;
 	private const float STEER_ANG_DECC_RATIO = 9f;
-	private const float STEER_SCALE_DOWN_SPEED = 0.2f * MAX_SPEED;
+	private const float STEER_SCALE_DOWN_SPEED = 0.15f * MAX_SPEED;
 
 	private static float STEER_FORCE_DIFF_MULT;
 	private static float ORTHO_FORCE_DIFF_MULT;
@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour {
 	private const float PLATFORM_GRAVITY_MAX_HEIGHT = 35f;
 	private const float PLATFORM_GRAVITY_MIN_HEIGHT = -25f;
 	// Max height from the platform to the ship when the ship is still considered as landed
-	private static float MAX_LANDING_OFFSET = 0.5f;
+	private static float MAX_LANDING_OFFSET = 0.35f;
 	private static float MAX_PLATFORM_LANDING_HEIGHT;
 	private BoxCollider platformCollider;
 	private bool landed = false;
