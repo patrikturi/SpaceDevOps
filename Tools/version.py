@@ -48,6 +48,7 @@ if __name__ == '__main__':
     mod_version_str = None
     if args.next_minor:
         minor += 1
+        patch = 0
         mod_version_str = 'minor'
     elif args.next_patch:
         patch += 1
