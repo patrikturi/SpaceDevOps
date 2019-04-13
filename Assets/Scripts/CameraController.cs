@@ -43,6 +43,7 @@ public class CameraController : MonoBehaviour {
 
 	private PlayerController playerController;
 
+	void Awake() {
 		if (Instance == null) {
 			Instance = this;
 		} else if(Instance != this) {

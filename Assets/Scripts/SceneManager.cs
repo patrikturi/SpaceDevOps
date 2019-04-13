@@ -53,6 +53,14 @@ public class SceneManager : MonoBehaviour {
 
 		SphereCollider planetCollider = PlanetPrefab.GetComponent<SphereCollider> ();
 		planetColliderSize = planetCollider.radius;
+
+		// Debug build: spawn at 0, 0, 0
+		// Release build: spawn at platform
+		foreach (Transform child in PlatformPrefab.transform) {
+			if (Debug.isDebugBuild && child.gameObject.name.Contains ("Spawn")) { // SpawnPosition
+				child.gameObject.SetActive(false);
+			}
+		}
 	}
 
 	public void SpawnWorld() {
