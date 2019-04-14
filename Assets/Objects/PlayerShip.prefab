@@ -646,7 +646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877f1e09573d3984ba2557094bf13bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 100
+  currentHealth: 0
 --- !u!114 &114449868393612864
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -659,14 +659,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TransformSyncMode: 3
-  m_SendInterval: 0.071428575
+  m_SendInterval: 0.055555556
   m_SyncRotationAxis: 7
   m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.001
-  m_VelocityThreshold: 0.0001
+  m_SyncSpin: 1
+  m_MovementTheshold: 0
+  m_VelocityThreshold: 0
   m_SnapThreshold: 5
-  m_InterpolateRotation: 1
+  m_InterpolateRotation: 3
   m_InterpolateMovement: 1
 --- !u!114 &114579039339113708
 MonoBehaviour:

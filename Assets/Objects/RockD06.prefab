@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 136446378596695804}
   - component: {fileID: 54762273990728466}
   - component: {fileID: 114183295198110756}
+  - component: {fileID: 114715068196528250}
+  - component: {fileID: 114668913004760912}
   m_Layer: 0
   m_Name: RockD06
   m_TagString: Untagged
@@ -159,7 +161,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 222c57001bef26e4e874273d7f9e2a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 80
+  currentHealth: 0
+--- !u!114 &114668913004760912
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1468679270357240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
+--- !u!114 &114715068196528250
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1468679270357240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 184
+    i1: 25
+    i2: 139
+    i3: 230
+    i4: 146
+    i5: 200
+    i6: 128
+    i7: 244
+    i8: 139
+    i9: 238
+    i10: 75
+    i11: 118
+    i12: 172
+    i13: 120
+    i14: 109
+    i15: 228
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!136 &136446378596695804
 CapsuleCollider:
   m_ObjectHideFlags: 1

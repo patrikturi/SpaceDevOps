@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class PlayerWeapon : MonoBehaviour {
+public class PlayerWeapon : NetworkBehaviour {
 
 	// TODO: bullet pooling
 
@@ -29,28 +30,37 @@ public class PlayerWeapon : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		if (!isLocalPlayer) {
+			return;
+		}
+
 		float fireInput = Input.GetAxis ("Fire");
 
 		if (fireInput > 0.1f && fireEnabledTimeStamp <= Time.time) {
-			FireAll();
+
+			CmdFireAll(bulletSpawnLeft.position, bulletSpawnRight.position, bulletSpawnLeft.rotation, bulletSpawnRight.rotation, shipBody.velocity);
 			fireEnabledTimeStamp = Time.time + COOLDOWN_DURATION;
 		}
 	}
 
-	private void FireAll() {
-		FireSingle (bulletSpawnRight);
-		FireSingle (bulletSpawnLeft);
+	[Command]
+	void CmdFireAll( Vector3 spawnPosLeft, Vector3 spawnPosRight, Quaternion spawnRotLeft, Quaternion spawnRotRight, Vector3 shipVelocity) {
+		FireSingle (spawnPosLeft, spawnRotLeft, shipVelocity);
+		FireSingle (spawnPosRight, spawnRotLeft, shipVelocity);
 	}
 
-	private void FireSingle(Transform spawn) {
-		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawn.position, transform.rotation * spawn.localRotation * bulletRotationOffset);
+	private void FireSingle(Vector3 spawnPos, Quaternion spawnRot, Vector3 shipVelocity) {
+		var bulletObject = (GameObject)Instantiate (BulletPrefab, spawnPos, spawnRot * bulletRotationOffset);
 
 		Rigidbody body = bulletObject.GetComponent<Rigidbody> ();
-		body.velocity = shipBody.velocity + transform.rotation * spawn.localRotation * Vector3.forward * BULLET_SPEED;
+		body.velocity = shipVelocity + spawnRot * Vector3.forward * BULLET_SPEED;
 		bulletObject.layer = BULLET_LAYER;
+		NetworkServer.Spawn (bulletObject);
+
 		var bulletScript = bulletObject.GetComponent<Bullet> ();
 		bulletScript.Player = gameObject;
 
+		// TODO: use NetworkDestroy?
 		Destroy (bulletObject, BULLET_DURATION);
 	}
 }

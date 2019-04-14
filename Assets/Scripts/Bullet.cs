@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Bullet : MonoBehaviour {
+public class Bullet : NetworkBehaviour {
 
 	// The firing player
 	public GameObject Player;
@@ -10,6 +11,9 @@ public class Bullet : MonoBehaviour {
 	private const int BULLET_DAMAGE = 20;
 
 	void OnTriggerEnter(Collider other) {
+		if (!isServer) {
+			return;
+		}
 
 		GameObject hitObject = other.gameObject;
 		// Ship hull

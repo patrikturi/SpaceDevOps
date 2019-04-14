@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PlayerHealth : Health {
 
-	// Note: replace by network api later
-	private bool LOCAL_PLAYER = true;
 	private static float INITIAL_WIDTH;
 
 	private const float EXPLOSION_BURST_TIME = 0.5f;
@@ -14,17 +12,16 @@ public class PlayerHealth : Health {
 
 	void Start() {
 		base.Start ();
-		if (LOCAL_PLAYER) {
+		if (isLocalPlayer) {
 			healthBar = SceneManager.Instance.HealthBar;
 			INITIAL_WIDTH = healthBar.sizeDelta.x;
 		}
 		base.destroyDelayTime = EXPLOSION_BURST_TIME - 0.2f;
 	}
 
-	protected override void setHealth(int health) {
-		base.setHealth (health);
+	protected override void OnHealthChangedOverride(int health) {
 		if (healthBar != null) {
-			healthBar.sizeDelta = new Vector2 (INITIAL_WIDTH * currentHealth / MAX_HEALTH, healthBar.sizeDelta.y);
+			healthBar.sizeDelta = new Vector2 (INITIAL_WIDTH * health / MAX_HEALTH, healthBar.sizeDelta.y);
 		}
 	}
 

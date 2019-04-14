@@ -169,6 +169,7 @@ public class SceneManager : MonoBehaviour {
 				if (body != null) {
 					body.mass = body.mass * size;
 				}
+				NetworkServer.Spawn (doodad);
 				count++;
 			}
 		}

@@ -42,6 +42,8 @@ GameObject:
   - component: {fileID: 136869504130997312}
   - component: {fileID: 54660538059159424}
   - component: {fileID: 114841833722703984}
+  - component: {fileID: 114615732509371008}
+  - component: {fileID: 114764652925841290}
   m_Layer: 0
   m_Name: RockD05
   m_TagString: Untagged
@@ -148,6 +150,59 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &114615732509371008
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1662407024087294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 184
+    i1: 186
+    i2: 28
+    i3: 196
+    i4: 250
+    i5: 89
+    i6: 68
+    i7: 116
+    i8: 185
+    i9: 33
+    i10: 30
+    i11: 29
+    i12: 175
+    i13: 8
+    i14: 177
+    i15: 31
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
+--- !u!114 &114764652925841290
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1662407024087294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114841833722703984
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -159,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 222c57001bef26e4e874273d7f9e2a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 80
+  currentHealth: 0
 --- !u!136 &136869504130997312
 CapsuleCollider:
   m_ObjectHideFlags: 1

@@ -24,6 +24,8 @@ GameObject:
   - component: {fileID: 135769649763110358}
   - component: {fileID: 54622824566270518}
   - component: {fileID: 114798514422748864}
+  - component: {fileID: 114961331919830320}
+  - component: {fileID: 114094748323257220}
   m_Layer: 0
   m_Name: RockD02
   m_TagString: Untagged
@@ -148,6 +150,27 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &114094748323257220
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1295232872651370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114798514422748864
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -159,7 +182,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 222c57001bef26e4e874273d7f9e2a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 80
+  currentHealth: 0
+--- !u!114 &114961331919830320
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1295232872651370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 90
+    i1: 129
+    i2: 134
+    i3: 204
+    i4: 167
+    i5: 241
+    i6: 145
+    i7: 4
+    i8: 170
+    i9: 0
+    i10: 191
+    i11: 32
+    i12: 205
+    i13: 141
+    i14: 136
+    i15: 236
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!135 &135769649763110358
 SphereCollider:
   m_ObjectHideFlags: 1

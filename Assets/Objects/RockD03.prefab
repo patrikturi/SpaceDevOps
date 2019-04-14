@@ -42,6 +42,8 @@ GameObject:
   - component: {fileID: 135429130001350342}
   - component: {fileID: 54765816232936484}
   - component: {fileID: 114795494467062748}
+  - component: {fileID: 114148022884040494}
+  - component: {fileID: 114379511863540546}
   m_Layer: 0
   m_Name: RockD03
   m_TagString: Untagged
@@ -148,6 +150,59 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &114148022884040494
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1805513521644750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 142
+    i1: 19
+    i2: 83
+    i3: 143
+    i4: 87
+    i5: 54
+    i6: 229
+    i7: 244
+    i8: 104
+    i9: 179
+    i10: 65
+    i11: 64
+    i12: 103
+    i13: 138
+    i14: 106
+    i15: 184
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
+--- !u!114 &114379511863540546
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1805513521644750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 3
+  m_SendInterval: 0.1
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114795494467062748
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -159,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 222c57001bef26e4e874273d7f9e2a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MAX_HEALTH: 80
+  currentHealth: 0
 --- !u!135 &135429130001350342
 SphereCollider:
   m_ObjectHideFlags: 1

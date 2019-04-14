@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class Health : MonoBehaviour {
+public class Health : NetworkBehaviour {
 
-	public int MAX_HEALTH = 100;
+	public const int MAX_HEALTH = 100;
 
-	protected int currentHealth;
+	[SyncVar (hook = "OnHealthChanged")] public int currentHealth;
 	protected float destroyDelayTime = 0f;
 	private GameObject fire;
 	private GameObject explosion;
@@ -54,30 +55,48 @@ public class Health : MonoBehaviour {
 	}
 
 	public void TakeDamage(int amount) {
-		if (currentHealth <= 0) {
+		if (!isServer || currentHealth <= 0) {
 			return;
 		}
 
-		if (currentHealth > amount) {
-			setHealth (currentHealth - amount);
-			if (fireParticles != null) {
-				fireParticles.Emit (amount / 10 + 1);
+		setHealth (currentHealth - amount);
+	}
+
+	private int prevHealthClient = MAX_HEALTH;
+
+	void OnHealthChanged(int health) {
+		OnHealthChangedOverride (health);
+
+		int changeAmount = health - prevHealthClient;
+		prevHealthClient = health;
+
+		if (health > 0) {
+			if (fireParticles != null && changeAmount > 0) {
+				fireParticles.Emit (changeAmount / 10 + 1);
 			}
 		} else {
 			Die ();
 		}
 	}
 
+	protected virtual void OnHealthChangedOverride(int health) {
+		// Override this function to get callback in the superclass
+	}
+
 	protected virtual void setHealth(int health) {
-		currentHealth = health;
+		// Managed by the server, clients receive OnHealthChanged event
+		if (isServer) {
+			currentHealth = Mathf.Clamp(health, 0, MAX_HEALTH);
+		}
 	}
 
 	private void Die() {
-		setHealth (0);
 		// Detach fire particles from the ship so they don't disappear when the ship is deactivated
 		if (fire != null) {
 			fire.transform.parent = null;
 		}
+
+		// TODO: isClient -> apply effects for client only?
 		if (explosion != null) {
 			explosion.transform.parent = null;
 		}
@@ -98,9 +117,16 @@ public class Health : MonoBehaviour {
 		} else {
 			SetInactive();
 		}
+
+		Invoke ("AttachExplosionAgain", 7.5f); // Long enough time for the explosion to be over
 	}
 
 	private void SetInactive() {
 		gameObject.SetActive (false);
+	}
+
+	private void AttachExplosionAgain() {
+		// TODO: localPosition might be incorrect
+		explosion.transform.parent = gameObject.transform;
 	}
 }
