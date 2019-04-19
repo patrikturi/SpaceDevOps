@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 
 public class CustomNetworkManager : NetworkManager {
 
+	public GameManager Game;
+
 	private bool worldSpawned = false;
 
     // Server callbacks
@@ -19,31 +21,27 @@ public class CustomNetworkManager : NetworkManager {
             if (LogFilter.logError) { Debug.LogError("ServerDisconnected due to error: " + conn.lastError); }
         }
 
-        Debug.Log("A client disconnected from the server: " + conn);
+		Debug.Log("A client disconnected from the server: " + conn);
     }
 
     public override void OnServerReady(NetworkConnection conn) {
+		Debug.Log("Client is set to the ready state (ready to receive state updates): " + conn);
         NetworkServer.SetClientReady(conn);
-        Debug.Log("Client is set to the ready state (ready to receive state updates): " + conn);
     }
 
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId) {
+		Debug.Log("Client has requested to get his player added to the game");
 		// Unfortunately can't spawn in OnStartServer() because NetworkServer is not initialized yet
 		if (!worldSpawned) {
 			worldSpawned = true;
 			SceneManager.Instance.SpawnWorld ();
 		}
-		base.OnServerAddPlayer (conn, playerControllerId);
-        //var player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-        //NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
-        Debug.Log("Client has requested to get his player added to the game");
-    }
 
-//	public override void OnServerRemovePlayer(NetworkConnection conn, PlayerController player) {
-//		if (player.gameObject != null) {
-//			NetworkServer.Destroy (player.gameObject);
-//		}
-//    }
+        var player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+        NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+
+		Game.SpawnPlayer (player);
+    }
 
     public override void OnServerError(NetworkConnection conn, int errorCode) {
         Debug.Log("Server network error occurred: " + (NetworkError)errorCode);
@@ -68,12 +66,20 @@ public class CustomNetworkManager : NetworkManager {
 
     // Client callbacks
     public override void OnClientConnect(NetworkConnection conn) {
-        base.OnClientConnect(conn);
         Debug.Log("Connected successfully to server, now to set up other stuff for the client...");
+		ClientScene.AddPlayer(conn, 0);
 		UIManager.Instance.LoadInGameUI ();
     }
 
     public override void OnClientDisconnect(NetworkConnection conn) {
+
+		foreach(var player in conn.playerControllers) {
+			GameObject playerObject = player.gameObject;
+			if (playerObject != null) {
+				NetworkServer.Destroy (player.gameObject);
+			}
+		}
+
         StopClient();
 
         if (conn.lastError != NetworkError.Ok)

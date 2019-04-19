@@ -9,7 +9,7 @@ public class BoundsRenderer : MonoBehaviour {
 	public bool DebugBounds = false;
 	public Transform ShipTransform;
 
-	private static float BOUNDS_SIZE;
+	private static float BOUNDS_SIZE = -1;
 	private const float BOUNDS_VISIBLE_RANGE = 80f;
 	private const int BOUNDS_CORE_CNT = 5;
 	private const int BOUNDS_FADE_CNT = 7;
