@@ -5,12 +5,22 @@ using UnityEngine.Networking;
 
 public class GameManager : NetworkBehaviour {
 
+	public static GameManager Instance;
+
 	public GameObject m_PlayerShip;
 	public GameObject m_Camera;
 
 	private Vector3[] spawnPoints;
 	private Quaternion[] spawnRotations;
 	private int nextSpawnPos = 0;
+
+	public void Awake() {
+		if (Instance == null) {
+			Instance = this;
+		} else if(Instance != this) {
+			Destroy (this);
+		}
+	}
 
 	// Server only
 	public void SpawnPlayer(GameObject player) {
@@ -20,7 +30,7 @@ public class GameManager : NetworkBehaviour {
 				spawnPoints = new Vector3[size];
 				spawnRotations = new Quaternion[size];
 				for (int i = 0; i < size; i++) {
-					spawnPoints [i] = new Vector3 (i*5, 0, 0);
+					spawnPoints [i] = new Vector3 (0, 0, 5+i*5);
 					spawnRotations[i] = Quaternion.identity;
 				}
 			} else {
@@ -40,17 +50,20 @@ public class GameManager : NetworkBehaviour {
 		int n = nextSpawnPos;
 		nextSpawnPos++;
 
-		NetworkIdentity playerNetworkIdentity = player.GetComponent<NetworkIdentity> ();
-
-		StartCoroutine(SpawnPlayerDelayed(playerNetworkIdentity.netId, spawnPoints[n], spawnRotations[n]));
+		StartCoroutine(SpawnPlayerDelayed(player, spawnPoints[n], spawnRotations[n]));
 	}
 		
-	IEnumerator SpawnPlayerDelayed(NetworkInstanceId playerId, Vector3 pos, Quaternion rot)
+	IEnumerator SpawnPlayerDelayed(GameObject player, Vector3 pos, Quaternion rot)
 	{
 		// Wait for PlayerController to be assigned on the client as well
 		yield return new WaitForSeconds(1f);
 
-		RpcSpawnPlayer (playerId, pos, rot);
+		Health health = player.GetComponent<Health> ();
+		health.Reset ();
+		player.SetActive (true);
+
+		var instanceId = player.GetComponent<NetworkIdentity> ().netId;
+		RpcSpawnPlayer (instanceId, pos, rot);
 	}
 
 	// Player position is managed by the Client
@@ -60,16 +73,31 @@ public class GameManager : NetworkBehaviour {
 		NetworkIdentity playerNetworkIdentity = player.GetComponent<NetworkIdentity> ();
 
 		if (playerNetworkIdentity.netId == playerId) {
+			
+
 			player.transform.position = pos;
 			player.transform.rotation = rot;
+
+			Rigidbody playerBody = player.GetComponent<Rigidbody> ();
+			playerBody.velocity = new Vector3(0, 0, 0);
+
 			player.SetActive (true);
 		}
+	}
+
+	public void PlayerDied(GameObject player) {
+		StartCoroutine (RespawnPlayerDelayed (player));
+	}
+
+	IEnumerator RespawnPlayerDelayed(GameObject player) {
+		yield return new WaitForSeconds(5f);
+		SpawnPlayer (player);
 	}
 
 	void OnGUI() {
 		Event e = Event.current;
 
-		if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.R) {
+		if (Debug.isDebugBuild && isServer && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.R) {
 			m_PlayerShip.SetActive(true);
 			// TODO: Create Player script -> reset()
 			m_PlayerShip.GetComponent<Health> ().Reset ();

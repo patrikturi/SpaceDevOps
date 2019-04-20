@@ -39,6 +39,7 @@ public class CustomNetworkManager : NetworkManager {
 
         var player = (GameObject)GameObject.Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
         NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+		player.SetActive (false);
 
 		Game.SpawnPlayer (player);
     }

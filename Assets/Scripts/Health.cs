@@ -59,27 +59,35 @@ public class Health : NetworkBehaviour {
 			return;
 		}
 
+		if (amount >= currentHealth && amount != 0) {
+			DieServer ();
+		}
 		setHealth (currentHealth - amount);
 	}
 
 	private int prevHealthClient = MAX_HEALTH;
 
 	void OnHealthChanged(int health) {
-		OnHealthChangedOverride (health);
+		OnHealthChangedCallback (health);
 
-		int changeAmount = health - prevHealthClient;
+		int damage = prevHealthClient - health;
+		damage = Mathf.Clamp (damage, 0, MAX_HEALTH);
 		prevHealthClient = health;
 
 		if (health > 0) {
-			if (fireParticles != null && changeAmount > 0) {
-				fireParticles.Emit (changeAmount / 10 + 1);
+			if (fireParticles != null && damage > 0) {
+				fireParticles.Emit (damage / 10 + 1);
 			}
 		} else {
-			Die ();
+			DieClient ();
 		}
 	}
 
-	protected virtual void OnHealthChangedOverride(int health) {
+	protected virtual void OnHealthChangedCallback(int health) {
+		// Override this function to get callback in the superclass
+	}
+
+	protected virtual void OnDeathServerCallback() {
 		// Override this function to get callback in the superclass
 	}
 
@@ -90,7 +98,11 @@ public class Health : NetworkBehaviour {
 		}
 	}
 
-	private void Die() {
+	private void DieServer() {
+		OnDeathServerCallback ();
+	}
+
+	private void DieClient() {
 		// Detach fire particles from the ship so they don't disappear when the ship is deactivated
 		if (fire != null) {
 			fire.transform.parent = null;
@@ -99,6 +111,9 @@ public class Health : NetworkBehaviour {
 		// TODO: isClient -> apply effects for client only?
 		if (explosion != null) {
 			explosion.transform.parent = null;
+		}
+		if (fire != null) {
+			fire.transform.parent = null;
 		}
 
 		if (explosionParticles != null) {
@@ -126,7 +141,13 @@ public class Health : NetworkBehaviour {
 	}
 
 	private void AttachExplosionAgain() {
-		// TODO: localPosition might be incorrect
-		explosion.transform.parent = gameObject.transform;
+		if (fireParticles != null) {
+			fireParticles.Clear ();
+			fire.transform.parent = gameObject.transform;
+		}
+		if (explosionParticles != null) {
+			explosionParticles.Clear ();
+			explosion.transform.parent = gameObject.transform;
+		}
 	}
 }

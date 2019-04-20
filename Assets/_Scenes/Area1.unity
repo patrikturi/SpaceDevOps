@@ -2718,6 +2718,11 @@ Prefab:
       propertyPath: BoundsFront
       value: 
       objectReference: {fileID: 1967061237}
+    - target: {fileID: 114752425500911438, guid: c2d23999d74c0ba41812c710f6d57606,
+        type: 2}
+      propertyPath: Game
+      value: 
+      objectReference: {fileID: 19790406}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c2d23999d74c0ba41812c710f6d57606, type: 2}
   m_IsPrefabParent: 0

@@ -21,7 +21,9 @@ public class BoundsRenderer : MonoBehaviour {
 	}
 
 	void Start() {
-		BOUNDS_SIZE = SceneManager.Instance.BOUNDS_SIZE;
+		// FIXME: Get from object size (SceneManager)!
+		// For some reason SceneManager.Instance was still null here, even it is initialized in Awake()
+		BOUNDS_SIZE = 1200/2;
 	}
 
 	void OnPostRender() {

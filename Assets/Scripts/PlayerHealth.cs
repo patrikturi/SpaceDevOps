@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class PlayerHealth : Health {
 
@@ -19,10 +20,14 @@ public class PlayerHealth : Health {
 		base.destroyDelayTime = EXPLOSION_BURST_TIME - 0.2f;
 	}
 
-	protected override void OnHealthChangedOverride(int health) {
+	protected override void OnHealthChangedCallback(int health) {
 		if (healthBar != null) {
 			healthBar.sizeDelta = new Vector2 (INITIAL_WIDTH * health / MAX_HEALTH, healthBar.sizeDelta.y);
 		}
+	}
+
+	protected override void OnDeathServerCallback() {
+		GameManager.Instance.PlayerDied (gameObject);
 	}
 
 	void OnGUI() {
