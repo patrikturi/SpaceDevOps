@@ -13,12 +13,42 @@ public class GameManager : NetworkBehaviour {
 	private Vector3[] spawnPoints;
 	private Quaternion[] spawnRotations;
 	private int nextSpawnPos = 0;
+	private Dictionary<NetworkInstanceId, PlayerDetails> allPlayerDetails;
 
 	public void Awake() {
 		if (Instance == null) {
 			Instance = this;
 		} else if(Instance != this) {
 			Destroy (this);
+		}
+	}
+
+	public void SetPlayerDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
+		if(allPlayerDetails == null) {
+			allPlayerDetails = new Dictionary<NetworkInstanceId, PlayerDetails> ();
+		}
+
+		// Send details of existing players to a new player joined
+		if (!allPlayerDetails.ContainsKey (instanceId)) {
+			foreach (var entry in allPlayerDetails) {
+				PlayerDetails details = entry.Value;
+				RpcSetPlayerDetails (entry.Key, details.name, details.color1, details.color2);
+			}
+		}
+
+		RpcSetPlayerDetails (instanceId, name, col1, col2);
+		allPlayerDetails.Add (instanceId, new PlayerDetails (name, col1, col2));
+	}
+
+	[ClientRpc]
+	void RpcSetPlayerDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
+
+		GameObject player = ClientScene.FindLocalObject (instanceId);
+		// TODO: Player might have already left - entries are not removed yet
+		if (player != null) {
+			PlayerController controller = player.GetComponent<PlayerController> ();
+			controller.SetMaterial ("main", col1);
+			controller.SetMaterial ("wings", col2);
 		}
 	}
 

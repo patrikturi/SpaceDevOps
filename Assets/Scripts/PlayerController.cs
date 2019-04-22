@@ -57,6 +57,7 @@ public class PlayerController : NetworkBehaviour {
 
 	private DebugUI debugUI;
 	private Rigidbody body;
+	private MeshRenderer meshRenderer;
 
 	private PController fwdMotor;
 	private PController fwdDamping;
@@ -105,6 +106,30 @@ public class PlayerController : NetworkBehaviour {
 		if (isLocalPlayer) {
 			CameraController.Instance.Target = gameObject;
 			CameraController.Instance.Reset ();
+		}
+	}
+		
+	public override void OnStartLocalPlayer() {
+		gameObject.SetActive (false);
+		NetworkInstanceId instanceId = GetComponent<NetworkIdentity> ().netId;
+
+		// Ideally would call this on GameManager, but Unity allows to invoke Command rpc only on Player objects
+		CmdSetDetails (instanceId, "test name", Color.green, Color.blue);
+	}
+
+	[Command]
+	public void CmdSetDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
+		GameManager.Instance.SetPlayerDetails (instanceId, "test name", Color.green, Color.blue);
+	}
+
+	public void SetMaterial(string materialName, Color color) {
+		if (meshRenderer == null) {
+			meshRenderer = GetComponent<MeshRenderer> ();
+		}
+		foreach (var mat in meshRenderer.materials) {
+			if (mat.name.Contains (materialName + " ") || mat.name.EndsWith (materialName)) {
+				mat.color = color;
+			}
 		}
 	}
 
