@@ -33,7 +33,7 @@ public class Health : NetworkBehaviour {
 		return tr.gameObject;
 	}
 
-	protected virtual void Start() {
+	public virtual void Start() {
 		currentHealth = MAX_HEALTH;
 	}
 

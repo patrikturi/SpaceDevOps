@@ -11,7 +11,7 @@ public class PlayerHealth : Health {
 
 	private RectTransform healthBar;
 
-	void Start() {
+	public override void Start() {
 		base.Start ();
 		if (isLocalPlayer) {
 			healthBar = SceneManager.Instance.HealthBar;
