@@ -7,6 +7,8 @@ using UnityEngine.Networking;
 
 public class NetworkHUD : MonoBehaviour {
 
+	public static NetworkHUD Instance;
+
 	public Button ConnectButton, HostButton, ServerButton;
 
 	public InputField NameInput, AddressInput, PortInput;
@@ -17,7 +19,32 @@ public class NetworkHUD : MonoBehaviour {
 
 	private NetworkManager networkManager;
 
+	public string PlayerName { get { return playerName; } }
+	public Color PlayerColor1 { get { return playerColor1; } }
+	public Color PlayerColor2 { get { return playerColor2; } }
+	private string playerName;
+	private Color playerColor1;
+	private Color playerColor2;
+
+	private Dictionary<string, Color> colors = new Dictionary<string, Color>()
+	{
+		{"blue", Color.blue},
+		{"cyan", Color.cyan},
+		{"green", Color.green},
+		{"magenta", Color.magenta},
+		{"red", Color.red},
+		{"white", Color.white},
+		{"yellow", Color.yellow},
+		{"brown", new Color(0.42f, 0.18f, 0f, 1f)},
+		{"orange", new Color(0.99f, 0.4f, 0f, 1f)}
+	};
+
 	void Awake() {
+		if (Instance == null) {
+			Instance = this;
+		} else if(Instance != this) {
+			Destroy (this);
+		}
 		networkManager = GetComponent<NetworkManager> ();
 	}
 
@@ -47,12 +74,10 @@ public class NetworkHUD : MonoBehaviour {
 
 	void StartHost() {
 		int port = getPort ();
-		string name = NameInput.text;
+
 		if (name.Length == 0) {
 			error ("Must enter a player name first!");
-		} else if (port <= 0) {
-			// message already shown
-		} else {
+		} else if(port > 0 && setupPlayer ()) {
 			networkManager.networkPort = port;
 			networkManager.StartHost ();
 		}
@@ -67,20 +92,29 @@ public class NetworkHUD : MonoBehaviour {
 	}
 
 	void StartClient() {
-		string name = NameInput.text;
 		string address = AddressInput.text;
 		int port = getPort ();
-		if (name.Length == 0) {
-			error ("Must enter a player name first!");
-		} else if (address.Length == 0) {
+
+		if (address.Length == 0) {
 			error ("Must enter an IP address first!");
-		} else if (port <= 0) {
-			// message already shown
-		} else { // All ok
+		} else if(port > 0 && setupPlayer ()) {
 			networkManager.networkPort = port;
 			networkManager.networkAddress = address;
 			networkManager.StartClient ();
 		}
+	}
+
+	// Returns true if succesful
+	private bool setupPlayer() {
+		string name = NameInput.text;
+		if (name.Length == 0) {
+			error ("Must enter a player name first!");
+			return false;
+		}
+		playerName = name;
+		playerColor1 = colors[SelectColor1.captionText.text];
+		playerColor2 = colors[SelectColor2.captionText.text];
+		return true;
 	}
 
 	private bool isUIFocused() {

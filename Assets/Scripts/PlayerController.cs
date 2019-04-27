@@ -108,18 +108,19 @@ public class PlayerController : NetworkBehaviour {
 			CameraController.Instance.Reset ();
 		}
 	}
-		
+
 	public override void OnStartLocalPlayer() {
 		gameObject.SetActive (false);
 		NetworkInstanceId instanceId = GetComponent<NetworkIdentity> ().netId;
 
 		// Ideally would call this on GameManager, but Unity allows to invoke Command rpc only on Player objects
-		CmdSetDetails (instanceId, "test name", Color.green, Color.blue);
+		NetworkHUD hud = NetworkHUD.Instance;
+		CmdSetDetails (instanceId, hud.PlayerName, hud.PlayerColor1, hud.PlayerColor2);
 	}
 
 	[Command]
 	public void CmdSetDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
-		GameManager.Instance.SetPlayerDetails (instanceId, "test name", Color.green, Color.blue);
+		GameManager.Instance.SetPlayerDetails (instanceId, name, col1, col2);
 	}
 
 	public void SetMaterial(string materialName, Color color) {
