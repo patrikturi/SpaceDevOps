@@ -26,7 +26,10 @@ public class PlayerHealth : Health {
 		}
 	}
 
-	protected override void OnDeathServerCallback() {
+	protected override void OnDeathServerCallback(GameObject firingPlayer) {
+		if (firingPlayer != null) {
+			GameManager.Instance.AddKill (firingPlayer);
+		}
 		GameManager.Instance.PlayerDied (gameObject);
 	}
 
@@ -34,9 +37,9 @@ public class PlayerHealth : Health {
 		Event e = Event.current;
 
 		if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.D) {
-			TakeDamage (MAX_HEALTH);
+			TakeDamage (MAX_HEALTH, null);
 		} else if (Debug.isDebugBuild && e.type == EventType.KeyUp && e.control && e.keyCode == KeyCode.X) {
-			TakeDamage (20);
+			TakeDamage (20, null);
 		}
 	}
 }

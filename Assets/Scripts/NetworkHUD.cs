@@ -108,8 +108,12 @@ public class NetworkHUD : MonoBehaviour {
 	private bool setupPlayer() {
 		string name = NameInput.text;
 		if (name.Length == 0) {
-			error ("Must enter a player name first!");
-			return false;
+			if (Debug.isDebugBuild) {
+				name = "Player";
+			} else {
+				error ("Must enter a player name first!");
+				return false;
+			}
 		}
 		playerName = name;
 		playerColor1 = colors[SelectColor1.captionText.text];

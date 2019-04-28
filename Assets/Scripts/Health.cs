@@ -54,13 +54,13 @@ public class Health : NetworkBehaviour {
 		setHealth (MAX_HEALTH);
 	}
 
-	public void TakeDamage(int amount) {
+	public void TakeDamage(int amount, GameObject firingPlayer) {
 		if (!isServer || currentHealth <= 0) {
 			return;
 		}
 
 		if (amount >= currentHealth && amount != 0) {
-			DieServer ();
+			DieServer (firingPlayer);
 		}
 		setHealth (currentHealth - amount);
 	}
@@ -87,7 +87,7 @@ public class Health : NetworkBehaviour {
 		// Override this function to get callback in the superclass
 	}
 
-	protected virtual void OnDeathServerCallback() {
+	protected virtual void OnDeathServerCallback(GameObject firingPlayer) {
 		// Override this function to get callback in the superclass
 	}
 
@@ -98,8 +98,8 @@ public class Health : NetworkBehaviour {
 		}
 	}
 
-	private void DieServer() {
-		OnDeathServerCallback ();
+	private void DieServer(GameObject firingPlayer) {
+		OnDeathServerCallback (firingPlayer);
 	}
 
 	private void DieClient() {

@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 
 public class GameManager : NetworkBehaviour {
 
+	public static float PLAYER_RESPAWN_TIME = 8f;
+
 	public static GameManager Instance;
 
 	public GameObject m_PlayerShip;
@@ -13,7 +15,7 @@ public class GameManager : NetworkBehaviour {
 	private Vector3[] spawnPoints;
 	private Quaternion[] spawnRotations;
 	private int nextSpawnPos = 0;
-	private Dictionary<NetworkInstanceId, PlayerDetails> allPlayerDetails;
+	private Dictionary<NetworkInstanceId, PlayerDetails> allPlayerDetails = new Dictionary<NetworkInstanceId, PlayerDetails> ();
 
 	public void Awake() {
 		if (Instance == null) {
@@ -23,10 +25,11 @@ public class GameManager : NetworkBehaviour {
 		}
 	}
 
+	public Dictionary<NetworkInstanceId, PlayerDetails> getPlayerDetails() {
+		return allPlayerDetails;
+	}
+
 	public void SetPlayerDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
-		if(allPlayerDetails == null) {
-			allPlayerDetails = new Dictionary<NetworkInstanceId, PlayerDetails> ();
-		}
 
 		// Send details of existing players to a new player joined
 		if (!allPlayerDetails.ContainsKey (instanceId)) {
@@ -42,6 +45,11 @@ public class GameManager : NetworkBehaviour {
 
 	[ClientRpc]
 	void RpcSetPlayerDetails(NetworkInstanceId instanceId, string name, Color col1, Color col2) {
+
+		if (!allPlayerDetails.ContainsKey (instanceId)) {
+			PlayerDetails details = new PlayerDetails(name, col1, col2);
+			allPlayerDetails.Add (instanceId, details);
+		}
 
 		GameObject player = ClientScene.FindLocalObject (instanceId);
 		// TODO: Player might have already left - entries are not removed yet
@@ -104,7 +112,6 @@ public class GameManager : NetworkBehaviour {
 
 		if (playerNetworkIdentity.netId == playerId) {
 			
-
 			player.transform.position = pos;
 			player.transform.rotation = rot;
 
@@ -116,12 +123,36 @@ public class GameManager : NetworkBehaviour {
 	}
 
 	public void PlayerDied(GameObject player) {
+		NetworkInstanceId netId = player.GetComponent<NetworkIdentity> ().netId;
+		PlayerDetails details = allPlayerDetails [netId];
+		details.deaths += 1;
+		RpcUpdateDeaths (netId, details.deaths);
+
 		StartCoroutine (RespawnPlayerDelayed (player));
 	}
 
+	public void AddKill(GameObject player) {
+		NetworkInstanceId netId = player.GetComponent<NetworkIdentity> ().netId;
+		PlayerDetails details = allPlayerDetails [netId];
+		details.kills += 1;
+		RpcUpdateKills (netId, details.kills);
+	}
+
 	IEnumerator RespawnPlayerDelayed(GameObject player) {
-		yield return new WaitForSeconds(5f);
+		yield return new WaitForSeconds(PLAYER_RESPAWN_TIME);
 		SpawnPlayer (player);
+	}
+
+	[ClientRpc]
+	void RpcUpdateKills(NetworkInstanceId netId, int kills) {
+		// TODO: skip if host
+		allPlayerDetails [netId].kills = kills;
+	}
+
+	[ClientRpc]
+	void RpcUpdateDeaths(NetworkInstanceId netId, int deaths) {
+		// TODO: skip if host
+		allPlayerDetails [netId].deaths = deaths;
 	}
 
 	void OnGUI() {

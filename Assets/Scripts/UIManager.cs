@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour {
 	public GameObject QuitPanel;
 	public GameObject IntroPanel;
 	public GameObject PlayerHUD;
+	public GameObject ScorePanel;
 
 	void Awake () {
 		if (Instance == null) {
@@ -40,10 +41,16 @@ public class UIManager : MonoBehaviour {
 				HelpPanel.SetActive (true);
 			} else if (e.keyCode == KeyCode.Escape) {
 				QuitPanel.SetActive (true);
+			} else if (e.keyCode == KeyCode.Tab) {
+				ScoreBoard board = ScorePanel.GetComponent<ScoreBoard> ();
+				board.Show (GameManager.Instance.getPlayerDetails ());
+				ScorePanel.SetActive (true);
 			}
 		} else if (e.type == EventType.KeyUp) {
 			if (e.keyCode == KeyCode.F1) {
 				HelpPanel.SetActive (false);
+			} else if (e.keyCode == KeyCode.Tab) {
+				ScorePanel.SetActive (false);
 			}
 		}
 	}

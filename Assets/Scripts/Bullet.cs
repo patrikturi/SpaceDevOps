@@ -31,7 +31,7 @@ public class Bullet : NetworkBehaviour {
 
 		// Damageable and not self
 		if (health != null && hitObject != Player) {
-			health.TakeDamage (BULLET_DAMAGE);
+			health.TakeDamage (BULLET_DAMAGE, Player);
 		}
 
 		if (hitObject != Player) {
