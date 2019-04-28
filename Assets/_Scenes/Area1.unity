@@ -6282,6 +6282,7 @@ MonoBehaviour:
   QuitPanel: {fileID: 553722476}
   IntroPanel: {fileID: 944984863}
   PlayerHUD: {fileID: 82509201}
+  FPSText: {fileID: 544746730}
   ScorePanel: {fileID: 1706947762}
 --- !u!4 &1412237291
 Transform:

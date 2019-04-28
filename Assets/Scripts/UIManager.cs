@@ -12,6 +12,7 @@ public class UIManager : MonoBehaviour {
 	public GameObject QuitPanel;
 	public GameObject IntroPanel;
 	public GameObject PlayerHUD;
+	public GameObject FPSText;
 	public GameObject ScorePanel;
 
 	void Awake () {
@@ -27,6 +28,7 @@ public class UIManager : MonoBehaviour {
 		DebugPanel.SetActive (Debug.isDebugBuild);
 		IntroPanel.SetActive (true);
 		PlayerHUD.SetActive (true);
+		FPSText.SetActive (true);
 		Cursor.visible = false;
 	}
 
