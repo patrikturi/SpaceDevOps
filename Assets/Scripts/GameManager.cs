@@ -111,14 +111,13 @@ public class GameManager : NetworkBehaviour {
 		NetworkIdentity playerNetworkIdentity = player.GetComponent<NetworkIdentity> ();
 
 		if (playerNetworkIdentity.netId == playerId) {
-			
-			player.transform.position = pos;
-			player.transform.rotation = rot;
-
-			Rigidbody playerBody = player.GetComponent<Rigidbody> ();
-			playerBody.velocity = new Vector3(0, 0, 0);
-
-			player.SetActive (true);
+			// Local player
+			PlayerController controller = player.GetComponent<PlayerController> ();
+			controller.Spawn (pos, rot);
+		} else {
+			// Another player
+			player = ClientScene.FindLocalObject (playerId);
+			player.SetActive(true);
 		}
 	}
 

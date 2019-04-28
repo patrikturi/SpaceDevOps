@@ -123,6 +123,18 @@ public class PlayerController : NetworkBehaviour {
 		GameManager.Instance.SetPlayerDetails (instanceId, name, col1, col2);
 	}
 
+	public void Spawn(Vector3 pos, Quaternion rot) {
+		transform.position = pos;
+		transform.rotation = rot;
+
+		if (body == null) {
+			body = GetComponent<Rigidbody> ();
+		}
+		body.velocity.Set (0, 0, 0);
+	
+		gameObject.SetActive(true);
+	}
+
 	public void SetMaterial(string materialName, Color color) {
 		if (meshRenderer == null) {
 			meshRenderer = GetComponent<MeshRenderer> ();
