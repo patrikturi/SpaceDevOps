@@ -10,7 +10,8 @@ License: GNU GPLv3
 except for items in Dev/ThirdPartyLicenses
 
 Screenshots:
-![Screenshot 1](screen1.png?raw=true)
+
+![Screenshot 1](screen1.jpg?raw=true)
 
 
-![Screenshot 2](screen2.png?raw=true)
+![Screenshot 2](screen2.jpg?raw=true)
